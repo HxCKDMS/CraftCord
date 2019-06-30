@@ -4,8 +4,6 @@ var Opcodes = Java.type("org.objectweb.asm.Opcodes");
 var InsnList = Java.type("org.objectweb.asm.tree.InsnList");
 var MethodInsnNode = Java.type("org.objectweb.asm.tree.MethodInsnNode");
 var VarInsnNode = Java.type("org.objectweb.asm.tree.VarInsnNode");
-var IntInsnNode = Java.type("org.objectweb.asm.tree.IntInsnNode");
-var InsnNode = Java.type("org.objectweb.asm.tree.InsnNode");
 
 var UPDATE_SUGGESTION = ASMAPI.mapMethod("func_195129_h");
 
@@ -36,6 +34,7 @@ function patchUpdateSuggestion(instructions) {
         if (instructions.get(i).getOpcode() === Opcodes.PUTFIELD && instructions.get(i-1).getOpcode() === Opcodes.INVOKESTATIC) {
             print("found suggestion insertion location!");
             targetNode =  instructions.get(i);
+            break;
         }
     }
 

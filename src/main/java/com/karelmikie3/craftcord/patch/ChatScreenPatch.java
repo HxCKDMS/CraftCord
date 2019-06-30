@@ -9,10 +9,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public final class ChatScreenPatch {
+
+    @SuppressWarnings("unused")
     public static void addSuggestions(ChatScreen instance, String s) {
 
         boolean buildingEmote = false;
-        boolean longerThanOne = false;
+        boolean longerThanZero = false;
         int currentColonIndex = 0;
 
         char[] charArray = s.toCharArray();
@@ -23,14 +25,14 @@ public final class ChatScreenPatch {
                 buildingEmote = true;
                 currentColonIndex = i;
             } else if ((c >= 'a' && 'z' >= c || c >= 'A' && 'Z' >= c || c >= '0' && '9' >= c || c == '-') && buildingEmote) {
-                longerThanOne = true;
-            } else if (c == ':' && longerThanOne) {
+                longerThanZero = true;
+            } else if (c == ':' && longerThanZero) {
                 buildingEmote = false;
             }
         }
 
         if (buildingEmote) {
-            instance.pendingSuggestions = ISuggestionProvider.suggest(EmoteHelper.getEmotes().stream().map(emote -> ":" + emote + ":"), new SuggestionsBuilder(s, currentColonIndex));
+            instance.pendingSuggestions = ISuggestionProvider.suggest(EmoteHelper.getUsableEmotes().stream().map(emote -> ":" + emote + ":"), new SuggestionsBuilder(s, currentColonIndex));
 
             instance.pendingSuggestions.thenRun(() -> {
                 if (instance.pendingSuggestions.isDone()) {

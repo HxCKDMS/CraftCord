@@ -33,9 +33,9 @@ public class CraftCord {
 
     private void initClient(final FMLClientSetupEvent event) {
         try {
-            EmoteHelper.addEmote("https://cdn.discordapp.com/emojis/461229297122803712.png", "MonkaS");
-            EmoteHelper.addEmote("https://cdn.discordapp.com/emojis/375790194936512512.png", "FeelsBadMan");
-            EmoteHelper.addEmote("https://cdn.discordapp.com/emojis/472066625454211083.gif", "peek");
+            EmoteHelper.addEmote("https://cdn.discordapp.com/emojis/461229297122803712.png", "MonkaS", true);
+            EmoteHelper.addEmote("https://cdn.discordapp.com/emojis/375790194936512512.png", "FeelsBadMan", true);
+            EmoteHelper.addEmote("https://cdn.discordapp.com/emojis/472066625454211083.gif", "peek", true);
         } catch (IOException e) {
             e.printStackTrace();
         }

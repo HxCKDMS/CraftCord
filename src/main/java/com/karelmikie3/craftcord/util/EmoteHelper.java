@@ -23,19 +23,21 @@ public final class EmoteHelper {
     @OnlyIn(Dist.CLIENT)
     private static final Map<String, byte[]> emoteData = new ConcurrentHashMap<>();
 
+    private static final Set<String> usableEmotes = ConcurrentHashMap.newKeySet();
+
     @OnlyIn(Dist.CLIENT)
     private static ExecutorService emoteDownloader = Executors.newCachedThreadPool();
 
     @OnlyIn(Dist.CLIENT)
-    public static void addEmote(String URL, String displayName) throws IOException {
-        addEmote(new URL(URL), displayName);
+    public static void addEmote(String URL, String displayName, boolean usable) throws IOException {
+        addEmote(new URL(URL), displayName, usable);
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static void addEmote(URL URL, String displayName) {
+    public static void addEmote(URL URL, String displayName, boolean usable) {
         emoteDownloader.submit(() -> {
             try {
-                downloadEmote(URL, displayName);
+                downloadEmote(URL, displayName, usable);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -43,7 +45,7 @@ public final class EmoteHelper {
     }
 
     @OnlyIn(Dist.CLIENT)
-    private static void downloadEmote(URL url, String displayName) throws IOException {
+    private static void downloadEmote(URL url, String displayName, boolean usable) throws IOException {
         String emoteID = url.toString().substring(34).replaceAll("\\.[^.]*$", "");
 
         URLConnection connection = url.openConnection();
@@ -60,6 +62,9 @@ public final class EmoteHelper {
         }
 
         displayToIDMap.put(displayName, emoteID);
+
+        if (usable)
+            usableEmotes.add(displayName);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -83,8 +88,8 @@ public final class EmoteHelper {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static Collection<String> getEmotes() {
-        return Collections.unmodifiableSet(displayToIDMap.keySet());
+    public static Collection<String> getUsableEmotes() {
+        return Collections.unmodifiableSet(usableEmotes);
     }
 
     //COMMON STUFF
