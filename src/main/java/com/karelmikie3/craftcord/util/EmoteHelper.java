@@ -9,9 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -82,6 +80,11 @@ public final class EmoteHelper {
     @OnlyIn(Dist.CLIENT)
     public static boolean hasEmote(String displayName) {
         return displayToIDMap.containsKey(displayName);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static Collection<String> getEmotes() {
+        return Collections.unmodifiableSet(displayToIDMap.keySet());
     }
 
     //COMMON STUFF

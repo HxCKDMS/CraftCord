@@ -6,13 +6,10 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 public class DiscordMessageEvent extends ListenerAdapter {
-    private final MinecraftServer server;
-
-    public DiscordMessageEvent(MinecraftServer server) {
-        this.server = server;
-    }
+    private final MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {

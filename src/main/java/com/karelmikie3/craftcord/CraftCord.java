@@ -62,7 +62,7 @@ public class CraftCord {
             e.printStackTrace();
         }
 
-        bot.addEventListener(new DiscordMessageEvent(event.getServer()));
+        bot.addEventListener(new DiscordMessageEvent());
 
         serverChatEvents = new ServerChatEvents(webhookClient);
         MinecraftForge.EVENT_BUS.register(serverChatEvents);

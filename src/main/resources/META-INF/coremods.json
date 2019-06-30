@@ -1,3 +1,4 @@
 {
-  "craftcord NewChatGui transformer": "patches/NewChatGui.js"
+  "craftcord NewChatGui transformer": "patches/NewChatGui.js",
+  "craftcord ChatScreen transformer": "patches/ChatScreen.js"
 }
