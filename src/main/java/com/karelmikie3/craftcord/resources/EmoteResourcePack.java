@@ -1,15 +1,18 @@
 package com.karelmikie3.craftcord.resources;
 
 import com.google.common.collect.Sets;
-import com.karelmikie3.craftcord.util.EmoteHelper;
+import com.karelmikie3.craftcord.util.ClientEmoteHelper;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourcePack;
 import net.minecraft.resources.ResourcePackType;
+import net.minecraft.resources.data.IMetadataSectionSerializer;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,12 +29,12 @@ public class EmoteResourcePack extends ResourcePack {
 
     @Override
     protected InputStream getInputStream(String resourcePath) {
-        return new ByteArrayInputStream(EmoteHelper.getEmoteData(resourcePath.replace("assets/craftcord/textures/emotedata/", "").replaceAll("\\.[^.]*$", "")));
+        return new ByteArrayInputStream(ClientEmoteHelper.getEmoteData(resourcePath.replace("assets/craftcord/textures/emotedata/", "").replaceAll("\\.[^.]*$", "")));
     }
 
     @Override
     protected boolean resourceExists(String resourcePath) {
-        return EmoteHelper.hasEmoteData(resourcePath.replace("assets/craftcord/textures/emotedata/", "").replaceAll("\\.[^.]*$", ""));
+        return ClientEmoteHelper.hasEmoteData(resourcePath.replace("assets/craftcord/textures/emotedata/", "").replaceAll("\\.[^.]*$", ""));
     }
 
     @Override
@@ -51,5 +54,11 @@ public class EmoteResourcePack extends ResourcePack {
     @Override
     public boolean isHidden() {
         return true;
+    }
+
+    @Nullable
+    @Override
+    public <T> T getMetadata(IMetadataSectionSerializer<T> deserializer) throws IOException {
+        return null;
     }
 }

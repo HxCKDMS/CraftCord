@@ -1,6 +1,6 @@
 package com.karelmikie3.craftcord.patch;
 
-import com.karelmikie3.craftcord.util.EmoteHelper;
+import com.karelmikie3.craftcord.util.ClientEmoteHelper;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.command.ISuggestionProvider;
@@ -32,7 +32,7 @@ public final class ChatScreenPatch {
         }
 
         if (buildingEmote) {
-            instance.pendingSuggestions = ISuggestionProvider.suggest(EmoteHelper.getUsableEmotes().stream().map(emote -> ":" + emote + ":"), new SuggestionsBuilder(s, currentColonIndex));
+            instance.pendingSuggestions = ISuggestionProvider.suggest(ClientEmoteHelper.getUsableEmotes().stream().map(emote -> ":" + emote + ":"), new SuggestionsBuilder(s, currentColonIndex));
 
             instance.pendingSuggestions.thenRun(() -> {
                 if (instance.pendingSuggestions.isDone()) {

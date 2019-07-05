@@ -1,5 +1,7 @@
 package com.karelmikie3.craftcord.util;
 
+import com.karelmikie3.craftcord.CraftCord;
+import com.karelmikie3.craftcord.network.RequestEmoteMessageC2S;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -14,7 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public final class EmoteHelper {
+@OnlyIn(Dist.CLIENT)
+public final class ClientEmoteHelper {
     //CLIENT SIDE ONLY STUFF
 
     @OnlyIn(Dist.CLIENT)
@@ -23,6 +26,7 @@ public final class EmoteHelper {
     @OnlyIn(Dist.CLIENT)
     private static final Map<String, byte[]> emoteData = new ConcurrentHashMap<>();
 
+    @OnlyIn(Dist.CLIENT)
     private static final Set<String> usableEmotes = ConcurrentHashMap.newKeySet();
 
     @OnlyIn(Dist.CLIENT)
@@ -88,32 +92,36 @@ public final class EmoteHelper {
     }
 
     @OnlyIn(Dist.CLIENT)
+    public static boolean hasEmoteID(String emoteID) {
+        return displayToIDMap.containsValue(emoteID);
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public static Collection<String> getUsableEmotes() {
         return Collections.unmodifiableSet(usableEmotes);
     }
 
-    //COMMON STUFF
+    @OnlyIn(Dist.CLIENT)
+    private static Set<Long> requested = new HashSet<>();
 
-    public static List<String> getOrderedEmotes(String text) {
-        List<String> emotes = new LinkedList<>();
+    @OnlyIn(Dist.CLIENT)
+    private static Set<String> ignore = new HashSet<>();
 
-        StringBuilder emoteBuilder = new StringBuilder();
-        boolean buildingEmote = false;
+    @OnlyIn(Dist.CLIENT)
+    public static void requestEmote(String emoteID) {
+        if (ignore.contains(emoteID))
+            return;
 
-        for (char c : text.toCharArray()) {
-            if (c == ':' && !buildingEmote) {
-                buildingEmote = true;
-            } else if ((c >= 'a' && 'z' >= c || c >= 'A' && 'Z' >= c || c >= '0' && '9' >= c || c == '-') && buildingEmote) {
-                emoteBuilder.append(c);
-            } else if (c == ':' && emoteBuilder.length() > 0) {
-                buildingEmote = false;
-                if (hasEmote(emoteBuilder.toString())) {
-                    emotes.add(emoteBuilder.toString());
-                }
-                emoteBuilder = new StringBuilder();
+        try {
+            long id = Long.parseLong(emoteID);
+
+            if (!requested.contains(id)) {
+                requested.add(id);
+
+                CraftCord.NETWORK.sendToServer(new RequestEmoteMessageC2S(id));
             }
+        } catch (NumberFormatException e) {
+            ignore.add(emoteID);
         }
-
-        return emotes;
     }
 }

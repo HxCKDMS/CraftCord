@@ -1,7 +1,8 @@
 package com.karelmikie3.craftcord.patch;
 
 import com.google.common.collect.Lists;
-import com.karelmikie3.craftcord.util.EmoteHelper;
+import com.karelmikie3.craftcord.util.ClientEmoteHelper;
+import com.karelmikie3.craftcord.util.CommonEmoteHelper;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -24,11 +25,19 @@ public final class NewChatGuiPatch {
     @SuppressWarnings("unused")
     public static String addEmotes(String text, float y) {
         if (text != null && !text.isEmpty()) {
-            for (String emote : EmoteHelper.getOrderedEmotes(text)) {
-                String[] parts = text.split(":" + emote + ":", 2);
-                text = parts[0] + "   " + parts[1];
-                int x = mc.fontRenderer.getStringWidth(parts[0]);
-                renderEmote(x, y, new ResourceLocation("craftcord", "textures/emotedata/" + EmoteHelper.getEmoteID(emote)));
+            for (String emoteID : CommonEmoteHelper.getOrderedEmotes(text, s -> true)) {
+                if (ClientEmoteHelper.hasEmoteData(emoteID)) {
+                    String[] parts = text.split(":" + emoteID + ":", 2);
+                    text = parts[0] + "   " + parts[1];
+                    int x = mc.fontRenderer.getStringWidth(parts[0]);
+
+                    renderEmote(x, y, new ResourceLocation("craftcord", "textures/emotedata/" + emoteID));
+                } else {
+//                    System.out.println("requesting download.");
+                    //request downloading emote with this id
+
+                    ClientEmoteHelper.requestEmote(emoteID);
+                }
             }
         }
         return text;
@@ -47,9 +56,9 @@ public final class NewChatGuiPatch {
         for (ITextComponent iTextComponent : components) {
             String text = iTextComponent.getUnformattedComponentText();
 
-            emotesToAdd.addAll(EmoteHelper.getOrderedEmotes(text));
+            emotesToAdd.addAll(CommonEmoteHelper.getOrderedEmotes(text, ClientEmoteHelper::hasEmoteData));
 
-            for (String emote : EmoteHelper.getOrderedEmotes(text)) {
+            for (String emote : CommonEmoteHelper.getOrderedEmotes(text, ClientEmoteHelper::hasEmoteData)) {
                 String[] parts = text.split(":" + emote + ":", 2);
                 text = parts[0] + "\u200ba" + parts[1];
             }
@@ -72,6 +81,7 @@ public final class NewChatGuiPatch {
             ITextComponent newComponent = new StringTextComponent("");
             for (ITextComponent component : Lists.newArrayList(outerComponent)) {
                 String text = addToNext + component.getUnformattedComponentText();
+                addToNext = "";
 
                 while (text.contains("\u200ba") && emotesToAdd.peek() != null) {
                     text = text.replaceFirst("\\u200ba", ":" + emotesToAdd.poll() + ":");
