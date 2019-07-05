@@ -34,6 +34,8 @@ public class EmoteResourcePack extends ResourcePack {
 
     @Override
     protected boolean resourceExists(String resourcePath) {
+        if (resourcePath.endsWith(".mcmeta") || resourcePath.endsWith(".lang"))
+            return false;
         return ClientEmoteHelper.hasEmoteData(resourcePath.replace("assets/craftcord/textures/emotedata/", "").replaceAll("\\.[^.]*$", ""));
     }
 
