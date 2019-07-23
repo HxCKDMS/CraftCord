@@ -33,7 +33,6 @@ public final class NewChatGuiPatch {
 
                     renderEmote(x, y, new ResourceLocation("craftcord", "textures/emotedata/" + emoteID));
                 } else {
-//                    System.out.println("requesting download.");
                     //request downloading emote with this id
 
                     ClientEmoteHelper.requestEmote(emoteID);
@@ -119,6 +118,8 @@ public final class NewChatGuiPatch {
 
             builder.begin(7, DefaultVertexFormats.POSITION_TEX);
             mc.getTextureManager().bindTexture(emote);
+            //mc.getTextureManager().loadTickableTexture(emote, new AtlasTexture("test"));
+            //mc.getTextureManager().loadTickableTexture(emote, new EmoteTexture(emote));
             builder.pos(0, 128, 0).tex(0, 1).endVertex();
             builder.pos(128, 128, 0).tex(1, 1).endVertex();
             builder.pos(128, 0, 0).tex(1, 0).endVertex();

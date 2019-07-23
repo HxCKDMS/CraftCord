@@ -23,7 +23,7 @@ public class DiscordMessageEvent extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if  (!event.isWebhookMessage()) {
+        if (!event.isWebhookMessage()) {
             String message = event.getMessage().getContentDisplay();
 
             for (Emote emote : event.getMessage().getEmotes()) {

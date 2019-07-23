@@ -8,21 +8,6 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
 
 public class EntityEvents {
-    /*@SubscribeEvent
-    //not triggering on playing joining server-side, cause: forge bug.
-    //TODO: implement this once Forge bug has been fixed.
-    public void joinWorldEvent(EntityJoinWorldEvent event) {
-        if (event.getEntity() instanceof ServerPlayerEntity) {
-            ServerPlayerEntity entity = (ServerPlayerEntity) event.getEntity();
-
-        }
-    }*/
-
-    /*public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.side == LogicalSide.SERVER && event.phase == TickEvent.Phase.END) {
-
-        }
-    }*/
 
     @SubscribeEvent
     public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {

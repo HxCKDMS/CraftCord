@@ -7,7 +7,6 @@ import com.karelmikie3.craftcord.event.EntityEvents;
 import com.karelmikie3.craftcord.network.RequestEmoteMessageC2S;
 import com.karelmikie3.craftcord.network.SendEmotesMessageS2C;
 import com.karelmikie3.craftcord.resources.EmoteResourcePack;
-import com.karelmikie3.craftcord.util.ClientEmoteHelper;
 import com.karelmikie3.craftcord.util.CommonEmoteHelper;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
@@ -28,7 +27,6 @@ import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 import javax.security.auth.login.LoginException;
-import java.io.IOException;
 import java.util.UUID;
 
 import static com.karelmikie3.craftcord.CraftCord.MOD_ID;
@@ -88,13 +86,13 @@ public class CraftCord {
     }
 
     private void initClient(final FMLClientSetupEvent event) {
-        try {
+        /*try {
             ClientEmoteHelper.addEmote("https://cdn.discordapp.com/emojis/461229297122803712.png", "MonkaS", true);
             ClientEmoteHelper.addEmote("https://cdn.discordapp.com/emojis/375790194936512512.png", "FeelsBadMan", true);
             ClientEmoteHelper.addEmote("https://cdn.discordapp.com/emojis/472066625454211083.gif", "peek", true);
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
         event.getMinecraftSupplier().get().getResourceManager().addResourcePack(new EmoteResourcePack());
 
         MinecraftForge.EVENT_BUS.register(new ClientChatEvents());

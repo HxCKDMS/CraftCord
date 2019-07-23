@@ -4,11 +4,11 @@ import net.dv8tion.jda.core.entities.Emote;
 
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class CommonEmoteHelper {
     private static final HashMap<Long, Emote> emoteCache = new HashMap<>();
-    private static Map<String, String> nameURLMap;
+    //private static Map<String, String> nameURLMap;
+    private static Set<Emote> serverEmotes;
 
     public static List<String> getOrderedEmotes(String text, Predicate<String> emoteCheck) {
         List<String> emotes = new LinkedList<>();
@@ -34,19 +34,26 @@ public class CommonEmoteHelper {
     }
 
     public static void setServerEmotes(List<Emote> emotes) {
-        nameURLMap = emotes
+        /*nameURLMap = emotes
                 .stream()
                 .map(emote -> new AbstractMap.SimpleEntry<>(emote.getName(), emote.getImageUrl()))
-                .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
+                .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));*/
+
+        serverEmotes = new HashSet<>(emotes);
     }
 
     public static void removeServerEmotes() {
-        if (nameURLMap != null)
-            nameURLMap.clear();
+        /*if (nameURLMap != null)
+            nameURLMap.clear();*/
+
+        if (serverEmotes != null)
+            serverEmotes.clear();
     }
 
-    public static Map<String, String> getServerEmotes() {
-        return nameURLMap == null ? new HashMap<>() : Collections.unmodifiableMap(nameURLMap);
+    public static Set<Emote> getServerEmotes() {
+        //return nameURLMap == null ? new HashMap<>() : Collections.unmodifiableMap(nameURLMap);
+
+        return serverEmotes == null ? new HashSet<>() : Collections.unmodifiableSet(serverEmotes);
     }
 
     public static void addToLocalEmoteCache(Emote emote) {

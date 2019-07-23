@@ -28,7 +28,7 @@ public class RequestEmoteMessageC2S {
             Emote emote = CommonEmoteHelper.requestFromLocalEmoteCache(msg.emoteID);
 
             if (emote != null) {
-                CraftCord.NETWORK.reply(new SendEmotesMessageS2C(emote, CommonEmoteHelper.getServerEmotes().containsKey(emote.getName())), ctx.get());
+                CraftCord.NETWORK.reply(new SendEmotesMessageS2C(emote, CommonEmoteHelper.getServerEmotes().contains(emote)), ctx.get());
             }
         });
         ctx.get().setPacketHandled(true);

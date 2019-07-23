@@ -16,11 +16,16 @@ import java.util.function.Supplier;
 public class SendEmotesMessageS2C {
     private final Map<String, String> nameURLMap = new HashMap<>();
     private final Set<String> usableEmotes = new HashSet<>();
+    private final Set<String> animatedEmotes = new HashSet<>();
 
     public SendEmotesMessageS2C(Emote emote, boolean usable) {
         nameURLMap.put(emote.getName(), emote.getImageUrl());
         if (usable) {
             usableEmotes.add(emote.getName());
+        }
+
+        if (emote.isAnimated()) {
+            animatedEmotes.add(emote.getName());
         }
     }
 
@@ -30,14 +35,31 @@ public class SendEmotesMessageS2C {
             if (usable) {
                 usableEmotes.add(emote.getName());
             }
+
+            if (emote.isAnimated()) {
+                animatedEmotes.add(emote.getName());
+            }
         });
     }
 
     public SendEmotesMessageS2C(boolean initialize) {
         if (initialize) {
-            CommonEmoteHelper.getServerEmotes().forEach((name, url) -> {
+            /*CommonEmoteHelper.getServerEmotes().forEach((name, url) -> {
                 nameURLMap.put(name, url);
                 usableEmotes.add(name);
+
+                if (emote.isAnimated()) {
+                    animatedEmotes.add(emote.getName());
+                }
+            });*/
+
+            CommonEmoteHelper.getServerEmotes().forEach((emote) -> {
+                nameURLMap.put(emote.getName(), emote.getImageUrl());
+                usableEmotes.add(emote.getName());
+
+                if (emote.isAnimated()) {
+                    animatedEmotes.add(emote.getName());
+                }
             });
         }
     }
@@ -48,6 +70,7 @@ public class SendEmotesMessageS2C {
             buffer.writeString(entry.getKey());
             buffer.writeString(entry.getValue());
             buffer.writeBoolean(msg.usableEmotes.contains(entry.getKey()));
+            buffer.writeBoolean(msg.animatedEmotes.contains(entry.getKey()));
         }
     }
 
@@ -59,11 +82,16 @@ public class SendEmotesMessageS2C {
             String emoteName = buffer.readString();
             String emoteID = buffer.readString();
             boolean usable = buffer.readBoolean();
+            boolean animated = buffer.readBoolean();
 
             msg.nameURLMap.put(emoteName, emoteID);
 
             if (usable) {
                 msg.usableEmotes.add(emoteName);
+            }
+
+            if (animated) {
+                msg.animatedEmotes.add(emoteName);
             }
         }
 
@@ -74,7 +102,7 @@ public class SendEmotesMessageS2C {
         ctx.get().enqueueWork(() -> {
             for (Map.Entry<String, String> entry : msg.nameURLMap.entrySet()) {
                 try {
-                    ClientEmoteHelper.addEmote(entry.getValue(), entry.getKey(), msg.usableEmotes.contains(entry.getKey()));
+                    ClientEmoteHelper.addEmote(entry.getValue(), entry.getKey(), msg.usableEmotes.contains(entry.getKey()), msg.animatedEmotes.contains(entry.getKey()));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
