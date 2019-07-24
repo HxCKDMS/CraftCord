@@ -15,9 +15,15 @@ import java.io.IOException;
 
 public class EmoteTexture extends Texture implements ITickableTextureObject {
     protected final ResourceLocation textureLocation;
-    private GifSerializer.GifMetadataSection gifMetadataSection;
-    private int counter = 0;
+    private int frameCounter = 0;
+    private int interFrameCounter = 0;
+    private boolean isAnimated;
+    private int frameAmount;
+    private int height;
+    private int[] delays;
     private NativeImage image;
+
+    private final int SUB_FRAME_INCREMENT = 6;
 
     public EmoteTexture(ResourceLocation textureResourceLocation) {
         this.textureLocation = textureResourceLocation;
@@ -28,9 +34,17 @@ public class EmoteTexture extends Texture implements ITickableTextureObject {
         try (EmoteTextureData simpletexture$texturedata = this.func_215246_b(manager)) {
             simpletexture$texturedata.func_217801_c();
 
-            this.gifMetadataSection = simpletexture$texturedata.getGifMetadataSection();
+            GifSerializer.GifMetadataSection gifMetadataSection = simpletexture$texturedata.getGifMetadataSection();
+
+            if (gifMetadataSection != null) {
+                this.frameAmount = gifMetadataSection.getFrameAmount();
+                this.isAnimated = gifMetadataSection.isAnimated();
+                this.height = gifMetadataSection.getHeight();
+                this.delays = gifMetadataSection.getDelays();
+            }
+
             this.image = simpletexture$texturedata.func_217800_b();
-            TextureUtil.prepareImage(this.getGlTextureId(), 0, image.getWidth(), gifMetadataSection.getHeight() != -1 ? gifMetadataSection.getHeight() : image.getHeight());
+            TextureUtil.prepareImage(this.getGlTextureId(), 0, image.getWidth(), this.isAnimated ? this.height : image.getHeight());
         }
     }
 
@@ -42,12 +56,14 @@ public class EmoteTexture extends Texture implements ITickableTextureObject {
     public void tick() {
         this.bindTexture();
 
-        if (gifMetadataSection.isAnimated()) {
+        if (isAnimated) {
+            image.uploadTextureSub(0, 0, 0, 0, frameCounter * height, image.getWidth(), height, true);
 
-            image.uploadTextureSub(0, 0, 0, 0, counter * gifMetadataSection.getHeight(), image.getWidth(), gifMetadataSection.getHeight(), false);
-
-            if (++counter >= gifMetadataSection.getFrameAmount()) {
-                counter = 0;
+            if ((interFrameCounter += SUB_FRAME_INCREMENT) >= delays[frameCounter]) {
+                interFrameCounter = 0;
+                if (++frameCounter >= frameAmount) {
+                    frameCounter = 0;
+                }
             }
         } else {
             image.uploadTextureSub(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), false, false, false);
@@ -62,7 +78,7 @@ public class EmoteTexture extends Texture implements ITickableTextureObject {
             this.gifMetadataSection = null;
         }
 
-        public EmoteTextureData(@Nullable TextureMetadataSection p_i50474_1_, NativeImage p_i50474_2_, GifSerializer.GifMetadataSection gifMetadataSection) {
+        public EmoteTextureData(@Nullable TextureMetadataSection p_i50474_1_, NativeImage p_i50474_2_, @Nullable GifSerializer.GifMetadataSection gifMetadataSection) {
             super(p_i50474_1_, p_i50474_2_);
             this.gifMetadataSection = gifMetadataSection;
         }

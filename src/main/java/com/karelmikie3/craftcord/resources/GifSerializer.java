@@ -1,9 +1,11 @@
 package com.karelmikie3.craftcord.resources;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.data.IMetadataSectionSerializer;
 import net.minecraft.util.JSONUtils;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public class GifSerializer implements IMetadataSectionSerializer<GifSerializer.GifMetadataSection> {
@@ -19,19 +21,26 @@ public class GifSerializer implements IMetadataSectionSerializer<GifSerializer.G
         final int frameAmount = JSONUtils.getInt(json, "frameAmount");
         final int height = JSONUtils.getInt(json, "height");
         final boolean animated = JSONUtils.getBoolean(json, "animated");
+        final JsonArray jsonArray = JSONUtils.getJsonArray(json, "delays");
+        final int[] delays = new int[jsonArray.size()];
+        for (int i = 0; i < jsonArray.size(); i++) {
+            delays[i] = jsonArray.get(i).getAsInt();
+        }
 
-        return new GifMetadataSection(frameAmount, height, animated);
+        return new GifMetadataSection(frameAmount, height, animated, delays);
     }
 
     public static class GifMetadataSection {
         private final int frameAmount;
         private final int height;
         private final boolean animated;
+        private final int[] delays;
 
-        public GifMetadataSection(int frameAmount, int height, boolean animated) {
+        public GifMetadataSection(int frameAmount, int height, boolean animated, int[] delays) {
             this.frameAmount = frameAmount;
             this.height = height;
             this.animated = animated;
+            this.delays = delays;
         }
 
         public int getFrameAmount() {
@@ -46,6 +55,10 @@ public class GifSerializer implements IMetadataSectionSerializer<GifSerializer.G
             return animated;
         }
 
+        public int[] getDelays() {
+            return delays;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -53,12 +66,15 @@ public class GifSerializer implements IMetadataSectionSerializer<GifSerializer.G
             GifMetadataSection that = (GifMetadataSection) o;
             return getFrameAmount() == that.getFrameAmount() &&
                     getHeight() == that.getHeight() &&
-                    isAnimated() == that.isAnimated();
+                    isAnimated() == that.isAnimated() &&
+                    Arrays.equals(getDelays(), that.getDelays());
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(getFrameAmount(), getHeight(), isAnimated());
+            int result = Objects.hash(getFrameAmount(), getHeight(), isAnimated());
+            result = 31 * result + Arrays.hashCode(getDelays());
+            return result;
         }
 
         @Override
@@ -67,6 +83,7 @@ public class GifSerializer implements IMetadataSectionSerializer<GifSerializer.G
                     "frameAmount=" + frameAmount +
                     ", height=" + height +
                     ", animated=" + animated +
+                    ", delays=" + Arrays.toString(delays) +
                     '}';
         }
     }

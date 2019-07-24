@@ -62,8 +62,9 @@ public class EmoteResourcePack extends ResourcePack {
 
             int frameAmount = 1;
             int height = -1;
-
+            StringBuilder builder = new StringBuilder("[");
             if (animated) {
+                //System.out.println(usefulResourcePath);
                 ImageReader reader = ImageIO.getImageReadersByFormatName("gif").next();
                 reader.setInput(ImageIO.createImageInputStream(new ByteArrayInputStream(ClientEmoteHelper.getEmoteData(usefulResourcePath))));
                 GifUtil.ImageFrame[] frames = readGIF(reader);
@@ -76,12 +77,19 @@ public class EmoteResourcePack extends ResourcePack {
 
                         height = frame.getHeight();
                     }
+
+                    builder.append(frame.getDelay()).append(',');
+                    //System.out.println(frame.getDelay());
                 }
+                //System.out.println();
+                builder.deleteCharAt(builder.lastIndexOf(","));
             }
+            builder.append(']');
             //System.out.println("asdf");
+            //JSONUtils.getJsonArray().get().getAsInt()
 
             //return new ReaderInputStream(new StringReader("{\"test\":{\"frameAmount\": " + frames.length + ",\"height\": " + maxHeight + "}}"), "UTF-8");
-            return new ByteArrayInputStream(("{\"test\":{\"frameAmount\":" + frameAmount + ",\"height\":" + height + ",\"animated\":" + animated + "}}").getBytes());
+            return new ByteArrayInputStream(("{\"test\":{\"frameAmount\":" + frameAmount + ",\"height\":" + height + ",\"animated\":" + animated + ",\"delays\":" + builder.toString() + "}}").getBytes());
             //return new FileInputStream("D:\\Development\\IdeaProjects\\1.14\\discraft\\test.mcmeta");
         }
 
