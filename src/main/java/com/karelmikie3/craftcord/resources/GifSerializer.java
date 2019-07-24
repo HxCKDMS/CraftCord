@@ -13,7 +13,7 @@ public class GifSerializer implements IMetadataSectionSerializer<GifSerializer.G
 
     @Override
     public String getSectionName() {
-        return "test";
+        return "emote";
     }
 
     @Override

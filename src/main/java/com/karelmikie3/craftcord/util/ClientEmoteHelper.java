@@ -11,16 +11,17 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.LogicalSidedProvider;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageOutputStream;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 @OnlyIn(Dist.CLIENT)
 public final class ClientEmoteHelper {
@@ -36,10 +37,10 @@ public final class ClientEmoteHelper {
     private static final Set<String> usableEmotes = ConcurrentHashMap.newKeySet();
 
     @OnlyIn(Dist.CLIENT)
-    private static final Set<String> animatedEmotes = ConcurrentHashMap.newKeySet();
+    private static final Map<String, byte[]> emoteMetadata = new ConcurrentHashMap<>();
 
     @OnlyIn(Dist.CLIENT)
-    private static ExecutorService emoteDownloader = Executors.newFixedThreadPool(8);
+    private static ExecutorService emoteDownloader = Executors.newFixedThreadPool(2);
 
     @OnlyIn(Dist.CLIENT)
     public static void addEmote(String URL, String displayName, boolean usable, boolean animated) throws IOException {
@@ -64,30 +65,81 @@ public final class ClientEmoteHelper {
         URLConnection connection = url.openConnection();
         connection.setRequestProperty("User-Agent", "Minecraft CraftCord mod");
 
-        try (InputStream inputStream = new BufferedInputStream(connection.getInputStream());
-             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+        byte[] data;
+        try (InputStream input = new BufferedInputStream(connection.getInputStream());
+             ByteArrayOutputStream output = new ByteArrayOutputStream()) {
 
             int b;
-            while ((b = inputStream.read()) != -1)
-                outputStream.write(b);
+            while ((b = input.read()) != -1)
+                output.write(b);
 
-            emoteData.put(emoteID, outputStream.toByteArray());
+
+            data = output.toByteArray();
         }
 
-        displayToIDMap.put(displayName, emoteID);
+        StringBuilder metadataBuilder = new StringBuilder("{\"emote\":{\"delays\":[");
+        int frameAmount = -1;
+        int height = -1;
 
-        if (usable)
-            usableEmotes.add(displayName);
+        if (animated && data != null) {
+            try (ImageInputStream imageInput = ImageIO.createImageInputStream(new ByteArrayInputStream(data));
+                 ByteArrayOutputStream output = new ByteArrayOutputStream();
+                 ImageOutputStream imageOutput = ImageIO.createImageOutputStream(output)) {
 
-        if (animated)
-            animatedEmotes.add(emoteID);
+                ImageReader reader = ImageIO.getImageReadersByFormatName("gif").next();
+                ImageWriter writer = ImageIO.getImageWritersByFormatName("png").next();
+                reader.setInput(imageInput);
+                writer.setOutput(imageOutput);
 
-        ThreadTaskExecutor<?> executor = LogicalSidedProvider.WORKQUEUE.get(LogicalSide.CLIENT);
+                GifUtil.ImageFrame[] frames = GifUtil.readGIF(reader);
+                frameAmount = frames.length;
 
-        executor.runImmediately(() -> {
-            ResourceLocation emote = new ResourceLocation("craftcord", "textures/emotedata/" + emoteID);
-            mc.getTextureManager().loadTickableTexture(emote, new EmoteTexture(emote));
-        });
+                BufferedImage finalImage = null;
+                for (GifUtil.ImageFrame frame : frames) {
+                    finalImage = GifUtil.merge(finalImage, frame.getImage());
+
+                    if (frame.getHeight() > height) {
+                        if (height != -1) {
+                            System.err.println("multiple heights in one emote.");
+                        }
+
+                        height = frame.getHeight();
+                    }
+
+                    metadataBuilder.append(frame.getDelay()).append(',');
+                }
+
+                writer.write(finalImage);
+                metadataBuilder.deleteCharAt(metadataBuilder.lastIndexOf(","));
+
+                data = output.toByteArray();
+            }
+        }
+        metadataBuilder.append("],\"height\":").append(height)
+                       .append(",\"frameAmount\":").append(frameAmount)
+                       .append(",\"animated\":").append(animated)
+                       .append("}}");
+
+        if (data != null) {
+            emoteData.put(emoteID, data);
+            emoteMetadata.put(emoteID, metadataBuilder.toString().getBytes());
+            displayToIDMap.put(displayName, emoteID);
+
+            if (usable)
+                usableEmotes.add(displayName);
+
+            ThreadTaskExecutor<?> executor = LogicalSidedProvider.WORKQUEUE.get(LogicalSide.CLIENT);
+
+            executor.runImmediately(() -> {
+                ResourceLocation emote = new ResourceLocation("craftcord", "textures/emotedata/" + emoteID);
+                mc.getTextureManager().loadTickableTexture(emote, new EmoteTexture(emote));
+            });
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static byte[] getEmoteMetadata(String emoteID) {
+        return emoteMetadata.getOrDefault(emoteID, null);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -117,6 +169,7 @@ public final class ClientEmoteHelper {
 
     @OnlyIn(Dist.CLIENT)
     public static Collection<String> getUsableEmotes() {
+        System.out.println("usableEmotes.size() = " + usableEmotes.size());
         return Collections.unmodifiableSet(usableEmotes);
     }
 
@@ -142,10 +195,5 @@ public final class ClientEmoteHelper {
         } catch (NumberFormatException e) {
             ignore.add(emoteID);
         }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static boolean isAnimated(String emoteID) {
-        return animatedEmotes.contains(emoteID);
     }
 }
