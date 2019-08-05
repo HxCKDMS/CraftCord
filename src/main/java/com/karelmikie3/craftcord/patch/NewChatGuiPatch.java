@@ -31,10 +31,8 @@ public final class NewChatGuiPatch {
                     text = parts[0] + "   " + parts[1];
                     int x = mc.fontRenderer.getStringWidth(parts[0]);
 
-                    renderEmote(x, y, new ResourceLocation("craftcord", "textures/emotedata/" + emoteID));
+                    renderEmote(x, y, new ResourceLocation("craftcordemotes", "textures/emotedata/" + emoteID));
                 } else {
-                    //request downloading emote with this id
-
                     ClientEmoteHelper.requestEmote(emoteID);
                 }
             }

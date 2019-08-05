@@ -3,10 +3,14 @@ package com.karelmikie3.craftcord.resources;
 import com.google.common.collect.Sets;
 import com.karelmikie3.craftcord.util.ClientEmoteHelper;
 import mcp.MethodsReturnNonnullByDefault;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.IResourceManager;
 import net.minecraft.resources.ResourcePack;
 import net.minecraft.resources.ResourcePackType;
 import net.minecraft.resources.data.IMetadataSectionSerializer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.resource.IResourceType;
+import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -21,7 +25,8 @@ import java.util.function.Predicate;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class EmoteResourcePack extends ResourcePack {
+public class EmoteResourcePack extends ResourcePack implements ISelectiveResourceReloadListener {
+    private static final Minecraft mc = Minecraft.getInstance();
 
     public EmoteResourcePack() {
         super(new File("dummy"));
@@ -29,10 +34,13 @@ public class EmoteResourcePack extends ResourcePack {
 
     @Override
     protected InputStream getInputStream(String resourcePath) {
-        String usefulResourcePath = resourcePath.replace("assets/craftcord/textures/emotedata/", "").replaceAll("\\.[^.]*$", "");
+        String usefulResourcePath = resourcePath.replace("assets/craftcordemotes/textures/emotedata/", "").replaceAll("\\.[^.]*$", "");
 
-        if (resourcePath.endsWith(".mcmeta"))
-            return new ByteArrayInputStream(ClientEmoteHelper.getEmoteMetadata(usefulResourcePath));
+        if (resourcePath.endsWith(".mcmeta")) {
+            byte[] data = ClientEmoteHelper.getEmoteMetadata(usefulResourcePath);
+            return new ByteArrayInputStream(data);
+        }
+
 
         return new ByteArrayInputStream(ClientEmoteHelper.getEmoteData(usefulResourcePath));
     }
@@ -42,7 +50,7 @@ public class EmoteResourcePack extends ResourcePack {
         if (resourcePath.endsWith(".lang"))
             return false;
 
-        return ClientEmoteHelper.hasEmoteData(resourcePath.replace("assets/craftcord/textures/emotedata/", "").replaceAll("\\.[^.]*$", ""));
+        return ClientEmoteHelper.hasEmoteData(resourcePath.replace("assets/craftcordemotes/textures/emotedata/", "").replaceAll("\\.[^.]*$", ""));
     }
 
     @Override
@@ -52,7 +60,7 @@ public class EmoteResourcePack extends ResourcePack {
 
     @Override
     public Set<String> getResourceNamespaces(ResourcePackType type) {
-        return Sets.newHashSet("craftcord");
+        return Sets.newHashSet("craftcordemotes");
     }
 
     @Override
@@ -68,5 +76,10 @@ public class EmoteResourcePack extends ResourcePack {
     @Override
     public <T> T getMetadata(IMetadataSectionSerializer<T> deserializer) throws IOException {
         return null;
+    }
+    @Override
+    public void onResourceManagerReload(IResourceManager resourceManager, Predicate<IResourceType> resourcePredicate) {
+        System.out.println("reloading");
+        mc.getResourceManager().addResourcePack(this);
     }
 }

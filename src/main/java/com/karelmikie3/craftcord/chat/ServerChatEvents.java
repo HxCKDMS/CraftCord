@@ -1,5 +1,6 @@
 package com.karelmikie3.craftcord.chat;
 
+import com.karelmikie3.craftcord.discord.DiscordHandler;
 import com.karelmikie3.craftcord.util.ClientEmoteHelper;
 import com.karelmikie3.craftcord.util.CommonEmoteHelper;
 import net.dv8tion.jda.core.JDA;
@@ -17,9 +18,9 @@ public class ServerChatEvents {
     private final WebhookClient webhookClient;
     private final JDA bot;
 
-    public ServerChatEvents(WebhookClient webhookClient, JDA bot) {
-        this.webhookClient = webhookClient;
-        this.bot = bot;
+    public ServerChatEvents(DiscordHandler handler) {
+        this.webhookClient = handler.getWebhookClient();
+        this.bot = handler.getBot();
     }
 
     @SubscribeEvent

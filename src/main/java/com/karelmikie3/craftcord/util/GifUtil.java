@@ -107,7 +107,7 @@ public class GifUtil {
 
             IIOMetadataNode root = (IIOMetadataNode) reader.getImageMetadata(frameIndex).getAsTree("javax_imageio_gif_image_1.0");
             IIOMetadataNode gce = (IIOMetadataNode) root.getElementsByTagName("GraphicControlExtension").item(0);
-            int delay = Integer.valueOf(gce.getAttribute("delayTime"));
+            int delay = Integer.parseInt(gce.getAttribute("delayTime"));
             String disposal = gce.getAttribute("disposalMethod");
 
             int x = 0;
@@ -123,8 +123,8 @@ public class GifUtil {
                     Node nodeItem = children.item(nodeIndex);
                     if (nodeItem.getNodeName().equals("ImageDescriptor")) {
                         NamedNodeMap map = nodeItem.getAttributes();
-                        x = Integer.valueOf(map.getNamedItem("imageLeftPosition").getNodeValue());
-                        y = Integer.valueOf(map.getNamedItem("imageTopPosition").getNodeValue());
+                        x = Integer.parseInt(map.getNamedItem("imageLeftPosition").getNodeValue());
+                        y = Integer.parseInt(map.getNamedItem("imageTopPosition").getNodeValue());
                     }
                 }
             }

@@ -1,5 +1,6 @@
 package com.karelmikie3.craftcord.util;
 
+import com.google.gson.*;
 import com.karelmikie3.craftcord.CraftCord;
 import com.karelmikie3.craftcord.network.RequestEmoteMessageC2S;
 import com.karelmikie3.craftcord.resources.EmoteTexture;
@@ -21,33 +22,32 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+
+//TODO: remove excessive concurrency.
 @OnlyIn(Dist.CLIENT)
 public final class ClientEmoteHelper {
     private static final Minecraft mc = Minecraft.getInstance();
 
-    @OnlyIn(Dist.CLIENT)
     private static final Map<String, String> displayToIDMap = new ConcurrentHashMap<>();
-
-    @OnlyIn(Dist.CLIENT)
+    
     private static final Map<String, byte[]> emoteData = new ConcurrentHashMap<>();
 
-    @OnlyIn(Dist.CLIENT)
     private static final Set<String> usableEmotes = ConcurrentHashMap.newKeySet();
 
-    @OnlyIn(Dist.CLIENT)
     private static final Map<String, byte[]> emoteMetadata = new ConcurrentHashMap<>();
 
-    @OnlyIn(Dist.CLIENT)
     private static ExecutorService emoteDownloader = Executors.newFixedThreadPool(2);
 
-    @OnlyIn(Dist.CLIENT)
+    private static final Gson GSON = new GsonBuilder().create();
+    
     public static void addEmote(String URL, String displayName, boolean usable, boolean animated) throws IOException {
         addEmote(new URL(URL), displayName, usable, animated);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void addEmote(URL URL, String displayName, boolean usable, boolean animated) {
         emoteDownloader.submit(() -> {
             try {
@@ -58,7 +58,6 @@ public final class ClientEmoteHelper {
         });
     }
 
-    @OnlyIn(Dist.CLIENT)
     private static void downloadEmote(URL url, String displayName, boolean usable, boolean animated) throws IOException {
         String emoteID = url.toString().substring(34).replaceAll("\\.[^.]*$", "");
 
@@ -76,8 +75,10 @@ public final class ClientEmoteHelper {
 
             data = output.toByteArray();
         }
+        JsonObject emoteJson = new JsonObject();
+        JsonArray delaysJson = new JsonArray();
 
-        StringBuilder metadataBuilder = new StringBuilder("{\"emote\":{\"delays\":[");
+        //StringBuilder metadataBuilder = new StringBuilder("{\"emote\":{\"delays\":[");
         int frameAmount = -1;
         int height = -1;
 
@@ -106,23 +107,33 @@ public final class ClientEmoteHelper {
                         height = frame.getHeight();
                     }
 
-                    metadataBuilder.append(frame.getDelay()).append(',');
+                    delaysJson.add(frame.getDelay());
+                    //metadataBuilder.append(frame.getDelay()).append(',');
                 }
 
                 writer.write(finalImage);
-                metadataBuilder.deleteCharAt(metadataBuilder.lastIndexOf(","));
+                //metadataBuilder.deleteCharAt(metadataBuilder.lastIndexOf(","));
 
                 data = output.toByteArray();
             }
         }
-        metadataBuilder.append("],\"height\":").append(height)
+        emoteJson.add("delays", delaysJson);
+        emoteJson.add("height", new JsonPrimitive(height));
+        emoteJson.add("frameAmount", new JsonPrimitive(frameAmount));
+        emoteJson.add("animated", new JsonPrimitive(animated));
+
+        /*metadataBuilder.append("],\"height\":").append(height)
                        .append(",\"frameAmount\":").append(frameAmount)
                        .append(",\"animated\":").append(animated)
-                       .append("}}");
+                       .append("}}");*/
 
         if (data != null) {
+            JsonObject metadataJson = new JsonObject();
+            metadataJson.add("emote", emoteJson);
+            byte[] metadata = GSON.toJson(metadataJson).getBytes();
+
             emoteData.put(emoteID, data);
-            emoteMetadata.put(emoteID, metadataBuilder.toString().getBytes());
+            emoteMetadata.put(emoteID, metadata);
             displayToIDMap.put(displayName, emoteID);
 
             if (usable)
@@ -131,55 +142,48 @@ public final class ClientEmoteHelper {
             ThreadTaskExecutor<?> executor = LogicalSidedProvider.WORKQUEUE.get(LogicalSide.CLIENT);
 
             executor.runImmediately(() -> {
-                ResourceLocation emote = new ResourceLocation("craftcord", "textures/emotedata/" + emoteID);
-                mc.getTextureManager().loadTickableTexture(emote, new EmoteTexture(emote));
+                ResourceLocation emoteResource = new ResourceLocation("craftcordemotes", "textures/emotedata/" + emoteID);
+                mc.getTextureManager().loadTickableTexture(emoteResource, new EmoteTexture(emoteResource));
             });
         }
     }
-
-    @OnlyIn(Dist.CLIENT)
+    
     public static byte[] getEmoteMetadata(String emoteID) {
         return emoteMetadata.getOrDefault(emoteID, null);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static byte[] getEmoteData(String emoteID) {
         return emoteData.getOrDefault(emoteID, null);
     }
-
-    @OnlyIn(Dist.CLIENT)
+    
     public static boolean hasEmoteData(String emoteID) {
         return emoteData.containsKey(emoteID);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static String getEmoteID(String displayName) {
         return displayToIDMap.get(displayName);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static boolean hasEmote(String displayName) {
         return displayToIDMap.containsKey(displayName);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static boolean hasEmoteID(String emoteID) {
         return displayToIDMap.containsValue(emoteID);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public static Collection<String> getUsableEmotes() {
-        System.out.println("usableEmotes.size() = " + usableEmotes.size());
-        return Collections.unmodifiableSet(usableEmotes);
+    public static Collection<String> getAllEmoteIDs() {
+        return Collections.unmodifiableSet(emoteData.keySet());
     }
 
-    @OnlyIn(Dist.CLIENT)
+    public static Collection<String> getUsableEmotes() {
+        return Collections.unmodifiableSet(usableEmotes);
+    }
+    
     private static Set<Long> requested = new HashSet<>();
-
-    @OnlyIn(Dist.CLIENT)
+    
     private static Set<String> ignore = new HashSet<>();
 
-    @OnlyIn(Dist.CLIENT)
     public static void requestEmote(String emoteID) {
         if (ignore.contains(emoteID))
             return;

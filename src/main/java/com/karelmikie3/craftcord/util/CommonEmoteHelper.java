@@ -34,25 +34,15 @@ public class CommonEmoteHelper {
     }
 
     public static void setServerEmotes(List<Emote> emotes) {
-        /*nameURLMap = emotes
-                .stream()
-                .map(emote -> new AbstractMap.SimpleEntry<>(emote.getName(), emote.getImageUrl()))
-                .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));*/
-
         serverEmotes = new HashSet<>(emotes);
     }
 
-    public static void removeServerEmotes() {
-        /*if (nameURLMap != null)
-            nameURLMap.clear();*/
-
+    public static void clearServerEmotes() {
         if (serverEmotes != null)
             serverEmotes.clear();
     }
 
     public static Set<Emote> getServerEmotes() {
-        //return nameURLMap == null ? new HashMap<>() : Collections.unmodifiableMap(nameURLMap);
-
         return serverEmotes == null ? new HashSet<>() : Collections.unmodifiableSet(serverEmotes);
     }
 
@@ -64,7 +54,7 @@ public class CommonEmoteHelper {
         return emoteCache.get(id);
     }
 
-    public static void clearLocalEmoteCache(long id) {
+    public static void clearLocalEmoteCache() {
         emoteCache.clear();
     }
 }

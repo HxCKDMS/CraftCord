@@ -44,15 +44,6 @@ public class SendEmotesMessageS2C {
 
     public SendEmotesMessageS2C(boolean initialize) {
         if (initialize) {
-            /*CommonEmoteHelper.getServerEmotes().forEach((name, url) -> {
-                nameURLMap.put(name, url);
-                usableEmotes.add(name);
-
-                if (emote.isAnimated()) {
-                    animatedEmotes.add(emote.getName());
-                }
-            });*/
-
             CommonEmoteHelper.getServerEmotes().forEach((emote) -> {
                 nameURLMap.put(emote.getName(), emote.getImageUrl());
                 usableEmotes.add(emote.getName());

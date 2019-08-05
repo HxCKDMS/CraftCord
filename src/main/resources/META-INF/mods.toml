@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[27,)"
+loaderVersion="[28,)"
 #issueTrackerURL="" no repo yet
 [[mods]]
 modId="craftcord"
@@ -8,19 +8,17 @@ displayName="Craft Cord"
 #updateJSONURL="" github later or own site
 displayURL="https://karelmikie3.com"
 logoFile="" #soon:tm:
-authors="KarelMikie3, (Jack eventually:tm:)"
-description='''
-A mod that connects Minecraft with Discord.
-'''
+authors="KarelMikie3"
+description='''A mod that connects Minecraft with Discord.'''
 [[dependencies.craftcord]] #optional
     modId="forge"
     mandatory=true
-    versionRange="[27,)"
+    versionRange="[28,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.craftcord]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.14.3]"
+    versionRange="[1.14.4]"
     ordering="NONE"
     side="BOTH"
