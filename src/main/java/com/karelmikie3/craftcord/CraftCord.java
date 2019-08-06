@@ -29,10 +29,8 @@ import org.apache.logging.log4j.Logger;
 import static com.karelmikie3.craftcord.CraftCord.MOD_ID;
 
 //TODO: add preset configs, client and local configs.
-//TODO: add aspect ratio for emotes.
 //TODO: keep emotes on disk instead of in memory and add option to just use memory.
-/*TODO: make it so GIFs are no longer turned into a square per frame. Use metadata to specify the y
-   position to start on.*/
+//TODO: replace '[DISCORD]' in chat with the Discord logo.
 @Mod(MOD_ID)
 public class CraftCord {
     public static final String MOD_ID = "craftcord";
@@ -48,7 +46,7 @@ public class CraftCord {
 
     private static CraftCord INSTANCE;
     private static DiscordHandler DISCORD_HANDLER;
-    public static IProxy proxy = DistExecutor.runForDist(() -> ClientProxy::new, () -> ServerProxy::new);
+    private static IProxy proxy = DistExecutor.runForDist(() -> ClientProxy::new, () -> ServerProxy::new);
 
     public static CraftCord getInstance() {
         return INSTANCE;

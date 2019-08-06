@@ -17,6 +17,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
@@ -58,6 +59,7 @@ public final class ClientEmoteHelper {
         });
     }
 
+    //TODO: method is way too big. Split into different methods.
     private static void downloadEmote(URL url, String displayName, boolean usable, boolean animated) throws IOException {
         String emoteID = url.toString().substring(34).replaceAll("\\.[^.]*$", "");
 
@@ -80,7 +82,7 @@ public final class ClientEmoteHelper {
 
         //StringBuilder metadataBuilder = new StringBuilder("{\"emote\":{\"delays\":[");
         int frameAmount = -1;
-        int height = -1;
+        int frameHeight = -1;
 
         if (animated && data != null) {
             try (ImageInputStream imageInput = ImageIO.createImageInputStream(new ByteArrayInputStream(data));
@@ -99,12 +101,12 @@ public final class ClientEmoteHelper {
                 for (GifUtil.ImageFrame frame : frames) {
                     finalImage = GifUtil.merge(finalImage, frame.getImage());
 
-                    if (frame.getHeight() > height) {
-                        if (height != -1) {
+                    if (frame.getHeight() > frameHeight) {
+                        if (frameHeight != -1) {
                             System.err.println("multiple heights in one emote.");
                         }
 
-                        height = frame.getHeight();
+                        frameHeight = frame.getHeight();
                     }
 
                     delaysJson.add(frame.getDelay());
@@ -116,9 +118,37 @@ public final class ClientEmoteHelper {
 
                 data = output.toByteArray();
             }
+        } else if (data != null) {
+            try (ImageInputStream imageInput = ImageIO.createImageInputStream(new ByteArrayInputStream(data));
+                 ByteArrayOutputStream output = new ByteArrayOutputStream();
+                 ImageOutputStream imageOutput = ImageIO.createImageOutputStream(output)) {
+
+                ImageReader reader = ImageIO.getImageReadersByFormatName("png").next();
+                ImageWriter writer = ImageIO.getImageWritersByFormatName("png").next();
+
+                reader.setInput(imageInput);
+                writer.setOutput(imageOutput);
+
+                BufferedImage inputImage = reader.read(0);
+
+                final int height = inputImage.getHeight();
+                final int width = inputImage.getWidth();
+                final int dim = Math.max(height, width);
+
+                BufferedImage squaredImage = new BufferedImage(dim, dim, BufferedImage.TYPE_INT_ARGB);
+
+                Graphics graphics = squaredImage.getGraphics();
+
+                graphics.drawImage(inputImage, (dim - width)>>1, (dim - height)>>1, null);
+                writer.write(squaredImage);
+
+                data = output.toByteArray();
+            }
         }
+
+
         emoteJson.add("delays", delaysJson);
-        emoteJson.add("height", new JsonPrimitive(height));
+        emoteJson.add("height", new JsonPrimitive(frameHeight));
         emoteJson.add("frameAmount", new JsonPrimitive(frameAmount));
         emoteJson.add("animated", new JsonPrimitive(animated));
 

@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 
 public class EmoteTexture extends Texture implements ITickableTextureObject {
-    protected final ResourceLocation textureLocation;
+    private final ResourceLocation textureLocation;
     private int frameCounter = 0;
     private int interFrameCounter = 0;
     private boolean isAnimated;
@@ -23,7 +23,7 @@ public class EmoteTexture extends Texture implements ITickableTextureObject {
     private int[] delays;
     private NativeImage image;
 
-    private final int SUB_FRAME_INCREMENT = 6;
+    private static final int SUB_FRAME_INCREMENT = 6;
 
     public EmoteTexture(ResourceLocation textureResourceLocation) {
         this.textureLocation = textureResourceLocation;

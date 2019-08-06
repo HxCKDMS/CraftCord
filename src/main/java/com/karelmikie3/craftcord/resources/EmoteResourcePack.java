@@ -2,7 +2,6 @@ package com.karelmikie3.craftcord.resources;
 
 import com.google.common.collect.Sets;
 import com.karelmikie3.craftcord.util.ClientEmoteHelper;
-import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.resources.ResourcePack;
@@ -13,7 +12,6 @@ import net.minecraftforge.resource.IResourceType;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -23,8 +21,6 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.function.Predicate;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class EmoteResourcePack extends ResourcePack implements ISelectiveResourceReloadListener {
     private static final Minecraft mc = Minecraft.getInstance();
 
@@ -36,10 +32,8 @@ public class EmoteResourcePack extends ResourcePack implements ISelectiveResourc
     protected InputStream getInputStream(String resourcePath) {
         String usefulResourcePath = resourcePath.replace("assets/craftcordemotes/textures/emotedata/", "").replaceAll("\\.[^.]*$", "");
 
-        if (resourcePath.endsWith(".mcmeta")) {
-            byte[] data = ClientEmoteHelper.getEmoteMetadata(usefulResourcePath);
-            return new ByteArrayInputStream(data);
-        }
+        if (resourcePath.endsWith(".mcmeta"))
+            return new ByteArrayInputStream(ClientEmoteHelper.getEmoteMetadata(usefulResourcePath));
 
 
         return new ByteArrayInputStream(ClientEmoteHelper.getEmoteData(usefulResourcePath));
@@ -79,7 +73,6 @@ public class EmoteResourcePack extends ResourcePack implements ISelectiveResourc
     }
     @Override
     public void onResourceManagerReload(IResourceManager resourceManager, Predicate<IResourceType> resourcePredicate) {
-        System.out.println("reloading");
         mc.getResourceManager().addResourcePack(this);
     }
 }
