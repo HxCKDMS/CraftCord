@@ -48,7 +48,7 @@ public class EmoteTexture extends Texture implements ITickableTextureObject {
         }
     }
 
-    protected EmoteTextureData func_215246_b(IResourceManager resourceManager) {
+    private EmoteTextureData func_215246_b(IResourceManager resourceManager) {
         return EmoteTextureData.func_217799_a(resourceManager, this.textureLocation);
     }
 
@@ -73,18 +73,18 @@ public class EmoteTexture extends Texture implements ITickableTextureObject {
     public static class EmoteTextureData extends SimpleTexture.TextureData {
         private final GifSerializer.GifMetadataSection gifMetadataSection;
 
-        public EmoteTextureData(IOException p_i50473_1_) {
+        EmoteTextureData(IOException p_i50473_1_) {
             super(p_i50473_1_);
             this.gifMetadataSection = null;
         }
 
-        public EmoteTextureData(@Nullable TextureMetadataSection p_i50474_1_, NativeImage p_i50474_2_, @Nullable GifSerializer.GifMetadataSection gifMetadataSection) {
+        EmoteTextureData(@Nullable TextureMetadataSection p_i50474_1_, NativeImage p_i50474_2_, @Nullable GifSerializer.GifMetadataSection gifMetadataSection) {
             super(p_i50474_1_, p_i50474_2_);
             this.gifMetadataSection = gifMetadataSection;
         }
 
         @Nullable
-        public GifSerializer.GifMetadataSection getGifMetadataSection() {
+        GifSerializer.GifMetadataSection getGifMetadataSection() {
             return gifMetadataSection;
         }
 

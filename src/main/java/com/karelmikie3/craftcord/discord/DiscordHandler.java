@@ -175,12 +175,22 @@ public class DiscordHandler {
         return bot;
     }
 
+    public DiscordSetupStatus getBotStatus() {
+        return botStatus;
+    }
+
+    public DiscordSetupStatus getWebhookStatus() {
+        return webhookStatus;
+    }
+
     private class DiscordEvents extends ListenerAdapter {
         private final MinecraftServer SERVER = ServerLifecycleHooks.getCurrentServer();
 
         @Override
         public void onMessageReceived(MessageReceivedEvent event) {
-            if (!event.isWebhookMessage() || event.getAuthor().getIdLong() != DiscordHandler.this.webhookID) {
+            if ((!event.isWebhookMessage() || event.getAuthor().getIdLong() != DiscordHandler.this.webhookID) &&
+                    (!ModConfig.sameChannel() || event.getChannel().getIdLong() == channelID)) {
+
                 String message = event.getMessage().getContentDisplay();
 
                 for (Emote emote : event.getMessage().getEmotes()) {

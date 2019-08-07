@@ -33,7 +33,7 @@ import static com.karelmikie3.craftcord.CraftCord.MOD_ID;
 //TODO: replace '[DISCORD]' in chat with the Discord logo.
 @Mod(MOD_ID)
 public class CraftCord {
-    public static final String MOD_ID = "craftcord";
+    static final String MOD_ID = "craftcord";
     private static final Logger LOGGER = LogManager.getLogger();
     private static final String PROTOCOL_VERSION = "1";
 
@@ -45,7 +45,7 @@ public class CraftCord {
     );
 
     private static CraftCord INSTANCE;
-    private static DiscordHandler DISCORD_HANDLER;
+    public final DiscordHandler DISCORD_HANDLER;
     private static IProxy proxy = DistExecutor.runForDist(() -> ClientProxy::new, () -> ServerProxy::new);
 
     public static CraftCord getInstance() {
@@ -67,9 +67,10 @@ public class CraftCord {
 
     }
 
+    @SuppressWarnings("UnusedAssignment")
     private void setup(final FMLCommonSetupEvent event) {
         proxy.setup();
-        System.out.println("setup!");
+        LOGGER.info("Setting up.");
         int id = 0;
         NETWORK.messageBuilder(SendEmotesMessageS2C.class, id++)
                 .encoder(SendEmotesMessageS2C::encode)
@@ -86,7 +87,7 @@ public class CraftCord {
     }
 
     private void initClient(final FMLClientSetupEvent event) {
-        System.out.println("init client");
+        LOGGER.info("Initializing client.");
 
         MinecraftForge.EVENT_BUS.register(new ClientChatEvents());
     }

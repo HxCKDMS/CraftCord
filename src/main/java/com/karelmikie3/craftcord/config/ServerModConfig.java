@@ -17,6 +17,7 @@ class ServerModConfig {
 
     final ForgeConfigSpec.ConfigValue<String> DISCORD_BOT_TOKEN;
     final ForgeConfigSpec.ConfigValue<String> DISCORD_WEBHOOK_URL;
+    final ForgeConfigSpec.BooleanValue SAME_CHANNEL;
 
     private ServerModConfig(ForgeConfigSpec.Builder builder) {
         builder.comment("Server settings")
@@ -32,6 +33,11 @@ class ServerModConfig {
                 .comment("Discord webhook URL.", "Used to post messages to the server.")
                 .translation("craftcord.configgui.discordWebhookURL")
                 .define("Discord webhook URL", "");
+
+        this.SAME_CHANNEL = builder
+                .comment("Only Display messages received on the same channel as the webhook.", "Disable to display all messages on the same Server.")
+                .translation("craftcord.configgui.sameChannel")
+                .define("Same channel", true);
 
         builder.pop();
     }

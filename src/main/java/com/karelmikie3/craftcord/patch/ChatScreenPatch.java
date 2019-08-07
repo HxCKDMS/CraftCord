@@ -8,10 +8,10 @@ import net.minecraft.command.ISuggestionProvider;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+@SuppressWarnings("unused")
 @OnlyIn(Dist.CLIENT)
 public final class ChatScreenPatch {
 
-    @SuppressWarnings("unused")
     public static void addSuggestions(ChatScreen instance, String s) {
         if (!ModConfig.emoteSuggestionsEnabled())
             return;

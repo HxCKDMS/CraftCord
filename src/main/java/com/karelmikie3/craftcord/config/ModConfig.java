@@ -34,6 +34,10 @@ public class ModConfig {
         }
     }
 
+    public static boolean sameChannel() {
+        return SERVER.SAME_CHANNEL.get();
+    }
+
     @OnlyIn(Dist.CLIENT)
     public static boolean emoteRenderingEnabled() {
         return CLIENT.ENABLE_EMOTE_RENDERING.get();

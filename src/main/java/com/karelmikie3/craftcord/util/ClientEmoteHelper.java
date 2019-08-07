@@ -49,7 +49,7 @@ public final class ClientEmoteHelper {
         addEmote(new URL(URL), displayName, usable, animated);
     }
 
-    public static void addEmote(URL URL, String displayName, boolean usable, boolean animated) {
+    private static void addEmote(URL URL, String displayName, boolean usable, boolean animated) {
         emoteDownloader.submit(() -> {
             try {
                 downloadEmote(URL, displayName, usable, animated);
@@ -80,7 +80,6 @@ public final class ClientEmoteHelper {
         JsonObject emoteJson = new JsonObject();
         JsonArray delaysJson = new JsonArray();
 
-        //StringBuilder metadataBuilder = new StringBuilder("{\"emote\":{\"delays\":[");
         int frameAmount = -1;
         int frameHeight = -1;
 
@@ -110,11 +109,10 @@ public final class ClientEmoteHelper {
                     }
 
                     delaysJson.add(frame.getDelay());
-                    //metadataBuilder.append(frame.getDelay()).append(',');
                 }
 
-                writer.write(finalImage);
-                //metadataBuilder.deleteCharAt(metadataBuilder.lastIndexOf(","));
+                if (finalImage != null)
+                    writer.write(finalImage);
 
                 data = output.toByteArray();
             }
@@ -202,6 +200,7 @@ public final class ClientEmoteHelper {
         return displayToIDMap.containsValue(emoteID);
     }
 
+    @SuppressWarnings("unused")
     public static Collection<String> getAllEmoteIDs() {
         return Collections.unmodifiableSet(emoteData.keySet());
     }

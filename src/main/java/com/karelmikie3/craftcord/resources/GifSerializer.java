@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class GifSerializer implements IMetadataSectionSerializer<GifSerializer.GifMetadataSection> {
-    public static final GifSerializer SERIALIZER = new GifSerializer();
+    static final GifSerializer SERIALIZER = new GifSerializer();
 
     @Override
     public String getSectionName() {
@@ -36,26 +36,26 @@ public class GifSerializer implements IMetadataSectionSerializer<GifSerializer.G
         private final boolean animated;
         private final int[] delays;
 
-        public GifMetadataSection(int frameAmount, int height, boolean animated, int[] delays) {
+        GifMetadataSection(int frameAmount, int height, boolean animated, int[] delays) {
             this.frameAmount = frameAmount;
             this.height = height;
             this.animated = animated;
             this.delays = delays;
         }
 
-        public int getFrameAmount() {
+        int getFrameAmount() {
             return frameAmount;
         }
 
-        public int getHeight() {
+        int getHeight() {
             return height;
         }
 
-        public boolean isAnimated() {
+        boolean isAnimated() {
             return animated;
         }
 
-        public int[] getDelays() {
+        int[] getDelays() {
             return delays;
         }
 

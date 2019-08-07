@@ -18,7 +18,7 @@ public class SendEmotesMessageS2C {
     private final Set<String> usableEmotes = new HashSet<>();
     private final Set<String> animatedEmotes = new HashSet<>();
 
-    public SendEmotesMessageS2C(Emote emote, boolean usable) {
+    SendEmotesMessageS2C(Emote emote, boolean usable) {
         nameURLMap.put(emote.getName(), emote.getImageUrl());
         if (usable) {
             usableEmotes.add(emote.getName());
@@ -29,6 +29,7 @@ public class SendEmotesMessageS2C {
         }
     }
 
+    @SuppressWarnings("unused")
     public SendEmotesMessageS2C(Map<Emote, Boolean> emotes) {
         emotes.forEach((emote, usable) -> {
             nameURLMap.put(emote.getName(), emote.getImageUrl());

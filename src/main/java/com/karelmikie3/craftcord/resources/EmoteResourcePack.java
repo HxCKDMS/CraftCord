@@ -14,7 +14,6 @@ import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
@@ -68,7 +67,7 @@ public class EmoteResourcePack extends ResourcePack implements ISelectiveResourc
 
     @Nullable
     @Override
-    public <T> T getMetadata(IMetadataSectionSerializer<T> deserializer) throws IOException {
+    public <T> T getMetadata(IMetadataSectionSerializer<T> deserializer) {
         return null;
     }
     @Override

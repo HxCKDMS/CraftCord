@@ -40,13 +40,13 @@ public final class ColorHelper {
 
             Color color2 = new Color(cToI.get(format));
 
-            int rmean = ( color.getRed() + color2.getRed() ) / 2;
+            int redMean = ( color.getRed() + color2.getRed() ) / 2;
             int deltaRed = color.getRed() - color2.getRed();
             int deltaGreen = color.getGreen() - color2.getGreen();
             int deltaBlue = color.getBlue() - color2.getBlue();
 
 
-            double delta = sqrt((((512+rmean)*deltaRed*deltaRed)>>8) + 4*deltaGreen*deltaGreen + (((767-rmean)*deltaBlue*deltaBlue)>>8));
+            double delta = sqrt((((512+redMean)*deltaRed*deltaRed)>>8) + 4*deltaGreen*deltaGreen + (((767-redMean)*deltaBlue*deltaBlue)>>8));
             if (Math.min(delta, bestDelta) == delta) {
                 best = format;
                 bestDelta = delta;

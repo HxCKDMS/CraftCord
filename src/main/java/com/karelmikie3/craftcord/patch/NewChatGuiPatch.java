@@ -20,10 +20,10 @@ import java.util.Queue;
 import java.util.concurrent.LinkedTransferQueue;
 
 @OnlyIn(Dist.CLIENT)
+@SuppressWarnings("unused")
 public final class NewChatGuiPatch {
     private static final Minecraft mc = Minecraft.getInstance();
 
-    @SuppressWarnings("unused")
     public static String addEmotes(String text, float y) {
         if (ModConfig.emoteRenderingEnabled() && text != null && !text.isEmpty()) {
             for (String emoteID : CommonEmoteHelper.getOrderedEmotes(text, s -> true)) {
@@ -43,7 +43,6 @@ public final class NewChatGuiPatch {
 
     private static Queue<String> emotesToAdd = new LinkedTransferQueue<>();
 
-    @SuppressWarnings("unused")
     public static ITextComponent removeEmotes(ITextComponent component) {
         if (!ModConfig.emoteRenderingEnabled())
             return component;
@@ -70,7 +69,6 @@ public final class NewChatGuiPatch {
         return newComponent;
     }
 
-    @SuppressWarnings("unused")
     public static List<ITextComponent> changeList(List<ITextComponent> components) {
         if (!ModConfig.emoteRenderingEnabled() || emotesToAdd.isEmpty())
             return components;
