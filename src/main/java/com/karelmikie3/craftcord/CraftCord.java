@@ -2,7 +2,7 @@ package com.karelmikie3.craftcord;
 
 import com.karelmikie3.craftcord.chat.ClientChatEvents;
 import com.karelmikie3.craftcord.chat.ServerChatEvents;
-import com.karelmikie3.craftcord.config.CommonModConfig;
+import com.karelmikie3.craftcord.config.ModConfig;
 import com.karelmikie3.craftcord.discord.DiscordHandler;
 import com.karelmikie3.craftcord.event.EntityEvents;
 import com.karelmikie3.craftcord.network.RequestEmoteMessageC2S;
@@ -28,7 +28,7 @@ import org.apache.logging.log4j.Logger;
 
 import static com.karelmikie3.craftcord.CraftCord.MOD_ID;
 
-//TODO: add preset configs, client and local configs.
+//TODO: add more config options.
 //TODO: keep emotes on disk instead of in memory and add option to just use memory.
 //TODO: replace '[DISCORD]' in chat with the Discord logo.
 @Mod(MOD_ID)
@@ -63,7 +63,7 @@ public class CraftCord {
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::initClient);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
-        CommonModConfig.initConfig();
+        ModConfig.initConfigs();
 
     }
 

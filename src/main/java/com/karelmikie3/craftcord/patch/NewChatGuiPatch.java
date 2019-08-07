@@ -1,6 +1,7 @@
 package com.karelmikie3.craftcord.patch;
 
 import com.google.common.collect.Lists;
+import com.karelmikie3.craftcord.config.ModConfig;
 import com.karelmikie3.craftcord.util.ClientEmoteHelper;
 import com.karelmikie3.craftcord.util.CommonEmoteHelper;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -24,7 +25,7 @@ public final class NewChatGuiPatch {
 
     @SuppressWarnings("unused")
     public static String addEmotes(String text, float y) {
-        if (text != null && !text.isEmpty()) {
+        if (ModConfig.emoteRenderingEnabled() && text != null && !text.isEmpty()) {
             for (String emoteID : CommonEmoteHelper.getOrderedEmotes(text, s -> true)) {
                 if (ClientEmoteHelper.hasEmoteData(emoteID)) {
                     String[] parts = text.split(":" + emoteID + ":", 2);
@@ -44,6 +45,9 @@ public final class NewChatGuiPatch {
 
     @SuppressWarnings("unused")
     public static ITextComponent removeEmotes(ITextComponent component) {
+        if (!ModConfig.emoteRenderingEnabled())
+            return component;
+
         emotesToAdd.clear();
 
         ITextComponent newComponent = new StringTextComponent("");
@@ -68,7 +72,7 @@ public final class NewChatGuiPatch {
 
     @SuppressWarnings("unused")
     public static List<ITextComponent> changeList(List<ITextComponent> components) {
-        if (emotesToAdd.isEmpty())
+        if (!ModConfig.emoteRenderingEnabled() || emotesToAdd.isEmpty())
             return components;
 
         List<ITextComponent> list = Lists.newArrayList();

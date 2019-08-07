@@ -5,9 +5,9 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
 import org.apache.commons.lang3.tuple.Pair;
 
-public class CommonModConfig {
+class CommonModConfig {
     private static final ForgeConfigSpec commonSpec;
-    public static final CommonModConfig CONFIG;
+    static final CommonModConfig CONFIG;
 
     static {
         final Pair<CommonModConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(CommonModConfig::new);
@@ -15,28 +15,28 @@ public class CommonModConfig {
         CONFIG = specPair.getLeft();
     }
 
-    public final ForgeConfigSpec.ConfigValue<String> DISCORD_BOT_TOKEN;
-    public final ForgeConfigSpec.ConfigValue<String> DISCORD_WEBHOOK_URL;
+    final ForgeConfigSpec.ConfigValue<String> DEFAULT_DISCORD_BOT_TOKEN;
+    final ForgeConfigSpec.ConfigValue<String> DEFAULT_DISCORD_WEBHOOK_URL;
 
     private CommonModConfig(ForgeConfigSpec.Builder builder) {
         builder.comment("Common settings")
                 .push("common");
 
-        this.DISCORD_BOT_TOKEN = builder
+        this.DEFAULT_DISCORD_BOT_TOKEN = builder
                 //TODO: expand as more features are added
-                .comment("Token for the Discord bot.", "Used for reading messages from the server.")
-                .translation("craftcord.configgui.discordBotToken")
-                .define("Discord bot token", "");
+                .comment("Default token for the Discord bot. Can be set per world.", "Used for reading messages from the server.")
+                .translation("craftcord.configgui.defaultDiscordBotToken")
+                .define("Default Discord bot token", "");
 
-        this.DISCORD_WEBHOOK_URL = builder
-                .comment("Discord webhook URL", "Used to post messages to the server.")
-                .translation("craftcord.configgui.discordWebhookURL")
-                .define("Discord webhook URL", "");
+        this.DEFAULT_DISCORD_WEBHOOK_URL = builder
+                .comment("Default discord webhook URL. Can be set per world.", "Used to post messages to the server.")
+                .translation("craftcord.configgui.defaultDiscordWebhookURL")
+                .define("Default Discord webhook URL", "");
 
         builder.pop();
     }
 
-    public static void initConfig() {
+    static void initConfig() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, commonSpec);
     }
 }

@@ -4,46 +4,15 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
-import javax.imageio.ImageWriter;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataNode;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class GifUtil {
-    public static void main(String[] args) throws IOException {
-        ImageReader reader = ImageIO.getImageReadersByFormatName("gif").next();
-        ImageWriter writer = ImageIO.getImageWritersByFormatName("png").next();
-        reader.setInput(ImageIO.createImageInputStream(new FileInputStream("peek.gif")));
-
-        ImageFrame[] frames = readGIF(reader);
-        BufferedImage finalImage = null;
-        int maxHeight = 0;
-        int i = 0;
-        for (ImageFrame frame : frames) {
-            finalImage = merge(finalImage, frame.image);
-            writer.setOutput(ImageIO.createImageOutputStream(new FileOutputStream("peek" + i++ + ".png")));
-            writer.write(frame.image);
-
-            if (frame.getHeight() > maxHeight) {
-                if (maxHeight != 0) {
-                    System.err.println("multiple heights in one emote.");
-                }
-
-                maxHeight = frame.getHeight();
-            }
-        }
-
-        writer.setOutput(ImageIO.createImageOutputStream(new FileOutputStream("peekmerged.png")));
-        writer.write(finalImage);
-    }
-
     public static BufferedImage merge(BufferedImage image1, BufferedImage image2) {
         if (image1 == null) {
             int dim = Math.max(image2.getHeight(), image2.getWidth());

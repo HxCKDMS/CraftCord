@@ -1,7 +1,7 @@
 package com.karelmikie3.craftcord.discord;
 
 import com.google.gson.JsonObject;
-import com.karelmikie3.craftcord.Config;
+import com.karelmikie3.craftcord.config.ModConfig;
 import com.karelmikie3.craftcord.util.ColorHelper;
 import com.karelmikie3.craftcord.util.CommonEmoteHelper;
 import net.dv8tion.jda.core.AccountType;
@@ -59,7 +59,7 @@ public class DiscordHandler {
         this.discordEvents = new DiscordEvents();
 
         try {
-            this.webhookClient = new WebhookClientBuilder(Config.webhookURL).build();
+            this.webhookClient = new WebhookClientBuilder(ModConfig.getWebhookURL()).build();
         } catch (IllegalArgumentException e) {
             this.webhookStatus = DiscordSetupStatus.INVALID_WEBHOOK_URL;
             LOGGER.warn("Invalid webhook URL", e);
@@ -70,7 +70,7 @@ public class DiscordHandler {
 
         try {
             this.bot = new JDABuilder(AccountType.BOT)
-                    .setToken(Config.botAuthToken)
+                    .setToken(ModConfig.getBotToken())
                     .build();
 
             this.bot.addEventListener(discordEvents);
@@ -131,7 +131,7 @@ public class DiscordHandler {
         HttpClient client = HttpClientBuilder.create().build();
 
         try {
-            HttpGet getRequest = new HttpGet(Config.webhookURL);
+            HttpGet getRequest = new HttpGet(ModConfig.getWebhookURL());
             HttpResponse response = client.execute(getRequest);
 
             try (InputStream input = response.getEntity().getContent();
