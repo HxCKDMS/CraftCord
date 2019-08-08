@@ -28,8 +28,10 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.webhook.WebhookClient;
 import net.dv8tion.jda.webhook.WebhookClientBuilder;
+import net.minecraft.network.play.server.SChatPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.JSONUtils;
+import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -50,6 +52,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Objects;
+
+import static net.minecraft.util.text.TextFormatting.*;
 
 public class DiscordHandler {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -218,7 +222,9 @@ public class DiscordHandler {
 
                 ITextComponent chatMessage = new TranslationTextComponent("chat.type.discordText", messengerName, message);
 
-                SERVER.getPlayerList().sendMessage(chatMessage);
+                //If mod language files load on server change to translation.
+                SERVER.sendMessage(new StringTextComponent(BLUE + "[" + DARK_BLUE + "DISCORD" + BLUE + "]" + RESET + "<").appendSibling(messengerName).appendText("> ").appendText(message));
+                SERVER.getPlayerList().sendPacketToAllPlayers(new SChatPacket(chatMessage, ChatType.CHAT));
             }
         }
     }

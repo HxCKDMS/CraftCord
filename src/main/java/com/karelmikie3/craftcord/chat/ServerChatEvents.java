@@ -17,14 +17,17 @@
 package com.karelmikie3.craftcord.chat;
 
 import com.karelmikie3.craftcord.discord.DiscordHandler;
-import com.karelmikie3.craftcord.util.ClientEmoteHelper;
 import com.karelmikie3.craftcord.util.CommonEmoteHelper;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.webhook.WebhookClient;
 import net.dv8tion.jda.webhook.WebhookMessageBuilder;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.event.ServerChatEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.codehaus.plexus.util.StringUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -43,7 +46,7 @@ public class ServerChatEvents {
     public void onServerChat(ServerChatEvent event) {
         String message = event.getMessage();
 
-        List<String> emoteIDs = CommonEmoteHelper.getOrderedEmotes(message, ClientEmoteHelper::hasEmoteID);
+        List<String> emoteIDs = CommonEmoteHelper.getOrderedEmotes(message, StringUtils::isNumeric);
         LinkedList<String> emotes = emoteIDs.parallelStream()
                 .map(bot::getEmoteById)
                 .map(Emote::getAsMention)
@@ -58,5 +61,19 @@ public class ServerChatEvents {
         builder.setContent(message);
         builder.setAvatarUrl("https://crafatar.com/avatars/" + event.getPlayer().getGameProfile().getId().toString());
         webhookClient.send(builder.build());
+    }
+
+
+    @SubscribeEvent
+    public void onPlayerDeath(LivingDeathEvent event) {
+        if (event.getEntityLiving() instanceof ServerPlayerEntity) {
+            ServerPlayerEntity player = (ServerPlayerEntity) event.getEntityLiving();
+            ITextComponent deathMessage = player.getCombatTracker().getDeathMessage();
+
+            WebhookMessageBuilder builder = new WebhookMessageBuilder();
+            builder.setUsername("Player death");
+            builder.setContent(deathMessage.getFormattedText());
+            webhookClient.send(builder.build());
+        }
     }
 }

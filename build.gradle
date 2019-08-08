@@ -87,7 +87,7 @@ dependencies {
 
     //compile 'club.minnced:discord-webhooks:0.1.7'
     compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.11.0'
-    compile 'net.dv8tion:JDA:3.8.3_463'
+    compile 'net.dv8tion:JDA:3.8.3_464'
 
     // The 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
     // provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
