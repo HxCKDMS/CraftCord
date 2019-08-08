@@ -50,22 +50,24 @@ public final class ColorHelper {
         TextFormatting best = TextFormatting.WHITE;
         double bestDelta = Double.MAX_VALUE;
 
-        for (TextFormatting format : TextFormatting.values()) {
-            if (!format.isColor())
-                continue;
+        if (color != null) {
+            for (TextFormatting format : TextFormatting.values()) {
+                if (!format.isColor())
+                    continue;
 
-            Color color2 = new Color(cToI.get(format));
+                Color color2 = new Color(cToI.get(format));
 
-            int redMean = ( color.getRed() + color2.getRed() ) / 2;
-            int deltaRed = color.getRed() - color2.getRed();
-            int deltaGreen = color.getGreen() - color2.getGreen();
-            int deltaBlue = color.getBlue() - color2.getBlue();
+                int redMean = (color.getRed() + color2.getRed()) / 2;
+                int deltaRed = color.getRed() - color2.getRed();
+                int deltaGreen = color.getGreen() - color2.getGreen();
+                int deltaBlue = color.getBlue() - color2.getBlue();
 
 
-            double delta = sqrt((((512+redMean)*deltaRed*deltaRed)>>8) + 4*deltaGreen*deltaGreen + (((767-redMean)*deltaBlue*deltaBlue)>>8));
-            if (Math.min(delta, bestDelta) == delta) {
-                best = format;
-                bestDelta = delta;
+                double delta = sqrt((((512 + redMean) * deltaRed * deltaRed) >> 8) + 4 * deltaGreen * deltaGreen + (((767 - redMean) * deltaBlue * deltaBlue) >> 8));
+                if (Math.min(delta, bestDelta) == delta) {
+                    best = format;
+                    bestDelta = delta;
+                }
             }
         }
 
