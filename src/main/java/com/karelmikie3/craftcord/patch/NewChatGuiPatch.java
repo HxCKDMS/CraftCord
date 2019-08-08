@@ -17,7 +17,7 @@
 package com.karelmikie3.craftcord.patch;
 
 import com.google.common.collect.Lists;
-import com.karelmikie3.craftcord.config.ModConfig;
+import com.karelmikie3.craftcord.config.Config;
 import com.karelmikie3.craftcord.util.ClientEmoteHelper;
 import com.karelmikie3.craftcord.util.CommonEmoteHelper;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -41,7 +41,7 @@ public final class NewChatGuiPatch {
     private static final Minecraft mc = Minecraft.getInstance();
 
     public static String addEmotes(String text, float y) {
-        if (ModConfig.emoteRenderingEnabled() && text != null && !text.isEmpty()) {
+        if (Config.emoteRenderingEnabled() && text != null && !text.isEmpty()) {
             for (String emoteID : CommonEmoteHelper.getOrderedEmotes(text, s -> true)) {
                 if (ClientEmoteHelper.hasEmoteData(emoteID)) {
                     String[] parts = text.split(":" + emoteID + ":", 2);
@@ -60,7 +60,7 @@ public final class NewChatGuiPatch {
     private static Queue<String> emotesToAdd = new LinkedTransferQueue<>();
 
     public static ITextComponent removeEmotes(ITextComponent component) {
-        if (!ModConfig.emoteRenderingEnabled())
+        if (!Config.emoteRenderingEnabled())
             return component;
 
         emotesToAdd.clear();
@@ -86,7 +86,7 @@ public final class NewChatGuiPatch {
     }
 
     public static List<ITextComponent> changeList(List<ITextComponent> components) {
-        if (!ModConfig.emoteRenderingEnabled() || emotesToAdd.isEmpty())
+        if (!Config.emoteRenderingEnabled() || emotesToAdd.isEmpty())
             return components;
 
         List<ITextComponent> list = Lists.newArrayList();

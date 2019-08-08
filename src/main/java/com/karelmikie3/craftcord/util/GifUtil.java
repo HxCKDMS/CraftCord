@@ -28,7 +28,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class GifUtil {
+public final class GifUtil {
     public static BufferedImage merge(BufferedImage image1, BufferedImage image2) {
         if (image1 == null) {
             int dim = Math.max(image2.getHeight(), image2.getWidth());

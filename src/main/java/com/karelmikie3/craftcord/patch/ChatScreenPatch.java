@@ -16,7 +16,7 @@
 
 package com.karelmikie3.craftcord.patch;
 
-import com.karelmikie3.craftcord.config.ModConfig;
+import com.karelmikie3.craftcord.config.Config;
 import com.karelmikie3.craftcord.util.ClientEmoteHelper;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.client.gui.screen.ChatScreen;
@@ -29,7 +29,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public final class ChatScreenPatch {
 
     public static void addSuggestions(ChatScreen instance, String s) {
-        if (!ModConfig.emoteSuggestionsEnabled())
+        if (!Config.emoteSuggestionsEnabled())
             return;
 
         boolean buildingEmote = false;

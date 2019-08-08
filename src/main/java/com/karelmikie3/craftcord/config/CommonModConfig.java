@@ -40,12 +40,16 @@ class CommonModConfig {
 
         this.DEFAULT_DISCORD_BOT_TOKEN = builder
                 //TODO: expand as more features are added
-                .comment("Default token for the Discord bot. Can be set per world.", "Used for reading messages from the server.")
+                .comment("Default token for the Discord bot. Can be set per world.",
+                        "Used for reading messages from the server.",
+                        "For a dedicated server use this one over the server config as this one won't be synchronized to the player.")
                 .translation("craftcord.configgui.defaultDiscordBotToken")
                 .define("Default Discord bot token", "");
 
         this.DEFAULT_DISCORD_WEBHOOK_URL = builder
-                .comment("Default discord webhook URL. Can be set per world.", "Used to post messages to the server.")
+                .comment("Default discord webhook URL. Can be set per world.",
+                        "Used to post messages to the server.",
+                        "For a dedicated server use this one over the server config as this one won't be synchronized to the player.")
                 .translation("craftcord.configgui.defaultDiscordWebhookURL")
                 .define("Default Discord webhook URL", "");
 

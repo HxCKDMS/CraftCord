@@ -18,8 +18,12 @@ package com.karelmikie3.craftcord.config;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-public class ModConfig {
+public class Config {
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final CommonModConfig COMMON = CommonModConfig.CONFIG;
     private static final ClientModConfig CLIENT = ClientModConfig.CONFIG;
     private static final ServerModConfig SERVER = ServerModConfig.CONFIG;
@@ -34,6 +38,10 @@ public class ModConfig {
         String token = SERVER.DISCORD_BOT_TOKEN.get();
 
         if (token != null && !token.isEmpty()) {
+            if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
+                LOGGER.warn("Using server config for token. This may be a security problem. Is this intended?");
+            }
+
             return token;
         } else {
             return COMMON.DEFAULT_DISCORD_BOT_TOKEN.get();
@@ -44,6 +52,10 @@ public class ModConfig {
         String webhookURL = SERVER.DISCORD_WEBHOOK_URL.get();
 
         if (webhookURL != null && !webhookURL.isEmpty()) {
+            if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
+                LOGGER.warn("Using server config for webhook URL. This may be a security problem. Is this intended?");
+            }
+
             return webhookURL;
         } else {
             return COMMON.DEFAULT_DISCORD_WEBHOOK_URL.get();
@@ -52,6 +64,34 @@ public class ModConfig {
 
     public static boolean sameChannel() {
         return SERVER.SAME_CHANNEL.get();
+    }
+
+    public static boolean broadcastDiscordChat() {
+        return SERVER.BROADCAST_DISCORD_CHAT.get();
+    }
+
+    public static boolean broadcastMinecraftChat() {
+        return SERVER.BROADCAST_MC_CHAT.get();
+    }
+
+    public static boolean broadcastDeath() {
+        return SERVER.BROADCAST_DEATH.get();
+    }
+
+    public static boolean broadcastAdvancement() {
+        return SERVER.BROADCAST_ADVANCEMENT.get();
+    }
+
+    public static boolean broadcastServerStartStop() {
+        return SERVER.BROADCAST_SERVER_START_STOP.get();
+    }
+
+    public static boolean broadcastPlayerJoinLeave() {
+        return SERVER.BROADCAST_PLAYER_JOIN_LEAVE.get();
+    }
+
+    public static boolean broadcastCrash() {
+        return SERVER.BROADCAST_CRASH.get();
     }
 
     @OnlyIn(Dist.CLIENT)

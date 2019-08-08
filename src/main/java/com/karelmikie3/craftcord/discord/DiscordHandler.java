@@ -17,7 +17,7 @@
 package com.karelmikie3.craftcord.discord;
 
 import com.google.gson.JsonObject;
-import com.karelmikie3.craftcord.config.ModConfig;
+import com.karelmikie3.craftcord.config.Config;
 import com.karelmikie3.craftcord.util.ColorHelper;
 import com.karelmikie3.craftcord.util.CommonEmoteHelper;
 import net.dv8tion.jda.core.AccountType;
@@ -35,6 +35,7 @@ import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
@@ -79,7 +80,7 @@ public class DiscordHandler {
         this.discordEvents = new DiscordEvents();
 
         try {
-            this.webhookClient = new WebhookClientBuilder(ModConfig.getWebhookURL()).build();
+            this.webhookClient = new WebhookClientBuilder(Config.getWebhookURL()).build();
         } catch (IllegalArgumentException e) {
             this.webhookStatus = DiscordSetupStatus.INVALID_WEBHOOK_URL;
             LOGGER.warn("Invalid webhook URL", e);
@@ -90,7 +91,7 @@ public class DiscordHandler {
 
         try {
             this.bot = new JDABuilder(AccountType.BOT)
-                    .setToken(ModConfig.getBotToken())
+                    .setToken(Config.getBotToken())
                     .build();
 
             this.bot.addEventListener(discordEvents);
@@ -101,7 +102,7 @@ public class DiscordHandler {
 
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onServerStarted(FMLServerStartedEvent event) {
         if (webhookStatus != DiscordSetupStatus.INVALID_WEBHOOK_URL)
             webhookStatus = DiscordSetupStatus.DONE;
@@ -121,7 +122,7 @@ public class DiscordHandler {
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onServerStopping(FMLServerStoppingEvent event) {
         webhookStatus = DiscordSetupStatus.STOPPING;
         botStatus = DiscordSetupStatus.STOPPING;
@@ -151,7 +152,7 @@ public class DiscordHandler {
         HttpClient client = HttpClientBuilder.create().build();
 
         try {
-            HttpGet getRequest = new HttpGet(ModConfig.getWebhookURL());
+            HttpGet getRequest = new HttpGet(Config.getWebhookURL());
             HttpResponse response = client.execute(getRequest);
 
             try (InputStream input = response.getEntity().getContent();
@@ -208,8 +209,11 @@ public class DiscordHandler {
 
         @Override
         public void onMessageReceived(MessageReceivedEvent event) {
+            if (!Config.broadcastDiscordChat())
+                return;
+
             if ((!event.isWebhookMessage() || event.getAuthor().getIdLong() != DiscordHandler.this.webhookID) &&
-                    (!ModConfig.sameChannel() || event.getChannel().getIdLong() == channelID)) {
+                    (!Config.sameChannel() || event.getChannel().getIdLong() == channelID)) {
 
                 String message = event.getMessage().getContentDisplay();
 

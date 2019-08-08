@@ -16,11 +16,11 @@
 
 package com.karelmikie3.craftcord;
 
-import com.karelmikie3.craftcord.chat.ClientChatEvents;
-import com.karelmikie3.craftcord.chat.ServerChatEvents;
-import com.karelmikie3.craftcord.config.ModConfig;
+import com.karelmikie3.craftcord.config.Config;
 import com.karelmikie3.craftcord.discord.DiscordHandler;
 import com.karelmikie3.craftcord.event.EntityEvents;
+import com.karelmikie3.craftcord.event.chat.ClientChatEvents;
+import com.karelmikie3.craftcord.event.chat.ServerChatEvents;
 import com.karelmikie3.craftcord.network.RequestEmoteMessageC2S;
 import com.karelmikie3.craftcord.network.SendEmotesMessageS2C;
 import com.karelmikie3.craftcord.proxy.ClientProxy;
@@ -28,6 +28,7 @@ import com.karelmikie3.craftcord.proxy.IProxy;
 import com.karelmikie3.craftcord.proxy.ServerProxy;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -44,7 +45,6 @@ import org.apache.logging.log4j.Logger;
 
 import static com.karelmikie3.craftcord.CraftCord.MOD_ID;
 
-//TODO: add more config options.
 //TODO: keep emotes on disk instead of in memory and add option to just use memory.
 //TODO: replace '[DISCORD]' in chat with the Discord logo.
 @Mod(MOD_ID)
@@ -79,7 +79,7 @@ public class CraftCord {
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::initClient);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
-        ModConfig.initConfigs();
+        Config.initConfigs();
 
     }
 
@@ -113,15 +113,16 @@ public class CraftCord {
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event) {
 
-    }
-
-    @SubscribeEvent
-    public void onServerStarted(FMLServerStartedEvent event) {
         serverChatEvents = new ServerChatEvents(DISCORD_HANDLER);
         MinecraftForge.EVENT_BUS.register(serverChatEvents);
     }
 
     @SubscribeEvent
+    public void onServerStarted(FMLServerStartedEvent event) {
+
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onServerStopping(FMLServerStoppingEvent event) {
         MinecraftForge.EVENT_BUS.unregister(serverChatEvents);
         serverChatEvents = null;

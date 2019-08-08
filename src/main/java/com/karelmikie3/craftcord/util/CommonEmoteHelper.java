@@ -21,7 +21,7 @@ import net.dv8tion.jda.core.entities.Emote;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class CommonEmoteHelper {
+public final class CommonEmoteHelper {
     private static final HashMap<Long, Emote> emoteCache = new HashMap<>();
     //private static Map<String, String> nameURLMap;
     private static Set<Emote> serverEmotes;

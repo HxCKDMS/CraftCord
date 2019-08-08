@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.karelmikie3.craftcord.chat;
+package com.karelmikie3.craftcord.event.chat;
 
 import com.karelmikie3.craftcord.util.ClientEmoteHelper;
 import com.karelmikie3.craftcord.util.CommonEmoteHelper;
