@@ -16,11 +16,15 @@
 
 package com.karelmikie3.craftcord.config;
 
+import com.karelmikie3.craftcord.discord.MinecraftPresence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Config {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -92,6 +96,13 @@ public class Config {
 
     public static boolean broadcastCrash() {
         return SERVER.BROADCAST_CRASH.get();
+    }
+
+    public static List<MinecraftPresence> getPresenceList() {
+        //return SERVER.PRESENCE_LIST.get().stream().map(ForgeConfigSpec.ConfigValue::get).map(o -> (MinecraftPresence) o).collect(Collectors.toList());
+        return SERVER.PRESENCE_LIST.get().stream().map(MinecraftPresence::valueOf).collect(Collectors.toList());
+        //return new LinkedList<>(SERVER.PRESENCE_LIST.get());
+        //return Collections.emptyList();
     }
 
     @OnlyIn(Dist.CLIENT)

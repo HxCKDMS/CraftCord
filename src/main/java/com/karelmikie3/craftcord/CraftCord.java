@@ -83,7 +83,6 @@ public class CraftCord {
 
     }
 
-    @SuppressWarnings("UnusedAssignment")
     private void setup(final FMLCommonSetupEvent event) {
         proxy.setup();
         LOGGER.info("Setting up.");
@@ -94,6 +93,7 @@ public class CraftCord {
                 .consumer(SendEmotesMessageS2C::handle)
                 .add();
 
+        //noinspection UnusedAssignment
         NETWORK.messageBuilder(RequestEmoteMessageC2S.class, id++)
                 .encoder(RequestEmoteMessageC2S::encode)
                 .decoder(RequestEmoteMessageC2S::decode)
@@ -104,7 +104,6 @@ public class CraftCord {
 
     private void initClient(final FMLClientSetupEvent event) {
         LOGGER.info("Initializing client.");
-
         MinecraftForge.EVENT_BUS.register(new ClientChatEvents());
     }
 

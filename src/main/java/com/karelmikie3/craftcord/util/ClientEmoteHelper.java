@@ -57,7 +57,7 @@ public final class ClientEmoteHelper {
 
     private static final Map<String, byte[]> emoteMetadata = new ConcurrentHashMap<>();
 
-    private static ExecutorService emoteDownloader = Executors.newFixedThreadPool(2);
+    private static final ExecutorService emoteDownloader = Executors.newFixedThreadPool(2);
 
     private static final Gson GSON = new GsonBuilder().create();
     
@@ -166,11 +166,6 @@ public final class ClientEmoteHelper {
         emoteJson.add("frameAmount", new JsonPrimitive(frameAmount));
         emoteJson.add("animated", new JsonPrimitive(animated));
 
-        /*metadataBuilder.append("],\"height\":").append(height)
-                       .append(",\"frameAmount\":").append(frameAmount)
-                       .append(",\"animated\":").append(animated)
-                       .append("}}");*/
-
         if (data != null) {
             JsonObject metadataJson = new JsonObject();
             metadataJson.add("emote", emoteJson);
@@ -225,9 +220,9 @@ public final class ClientEmoteHelper {
         return Collections.unmodifiableSet(usableEmotes);
     }
     
-    private static Set<Long> requested = new HashSet<>();
+    private static final Set<Long> requested = new HashSet<>();
     
-    private static Set<String> ignore = new HashSet<>();
+    private static final Set<String> ignore = new HashSet<>();
 
     public static void requestEmote(String emoteID) {
         if (ignore.contains(emoteID))

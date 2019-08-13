@@ -24,6 +24,7 @@ import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Emote;
+import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.webhook.WebhookClient;
@@ -35,6 +36,7 @@ import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
@@ -52,7 +54,8 @@ import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static net.minecraft.util.text.TextFormatting.*;
 
@@ -70,6 +73,8 @@ public class DiscordHandler {
     private Long webhookID;
     private Long channelID;
     private Long guildID;
+
+    private final List<IMinecraftPresence> presences = new LinkedList<>();
 
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event) {
@@ -120,10 +125,17 @@ public class DiscordHandler {
         if (webhookStatus.isUsable() && botStatus.isUsable()) {
             CommonEmoteHelper.setServerEmotes(bot.getGuildById(guildID).getEmotes());
         }
+
+        //TODO: do this for config load/reload events.
+        setBotPresence(new ArrayList<>(Config.getPresenceList()));
+        System.out.println(Config.getPresenceList());
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onServerStopping(FMLServerStoppingEvent event) {
+        presences.clear();
+        updatePresence(event.getServer());
+
         webhookStatus = DiscordSetupStatus.STOPPING;
         botStatus = DiscordSetupStatus.STOPPING;
 
@@ -146,6 +158,18 @@ public class DiscordHandler {
 
         CommonEmoteHelper.clearServerEmotes();
         CommonEmoteHelper.clearLocalEmoteCache();
+    }
+
+    private long counter = 0;
+    private static final long TICK_AMOUNT = 20;
+    @SubscribeEvent
+    public void onServerTick(TickEvent.ServerTickEvent event) {
+        if (event.phase == TickEvent.Phase.END && event.side.isServer() ) {
+            if (counter % TICK_AMOUNT == 0) {
+                updatePresence(ServerLifecycleHooks.getCurrentServer());
+            }
+            ++counter;
+        }
     }
 
     private void getWebhookData() {
@@ -202,6 +226,36 @@ public class DiscordHandler {
 
     public DiscordSetupStatus getWebhookStatus() {
         return webhookStatus;
+    }
+
+    public void setBotPresence(IMinecraftPresence presence) {
+        setBotPresence(Collections.singleton(presence));
+    }
+
+    /**
+     * Sets the internal {@link List} of Presences call {@link #updatePresence(MinecraftServer)} to update the presence displayed in Discord.
+     * @param presences {@link Collection} of {@link IMinecraftPresence} that represents are displayed in Discord delimited by ', '.
+     */
+    public void setBotPresence(Collection<IMinecraftPresence> presences) {
+        this.presences.clear();
+        this.presences.addAll(presences);
+    }
+
+    private String lastPresence = "";
+    public void updatePresence(MinecraftServer server) {
+        String presenceString = this.presences.stream()
+                .map(IMinecraftPresence::getMessage)
+                .map(func -> func.apply(server))
+                .collect(Collectors.joining(", "));
+
+        if (!lastPresence.equals(presenceString)) {
+            lastPresence = presenceString;
+            if (presenceString.isEmpty()) {
+                getBot().getPresence().setGame(null);
+            } else {
+                getBot().getPresence().setGame(Game.playing(presenceString));
+            }
+        }
     }
 
     private class DiscordEvents extends ListenerAdapter {

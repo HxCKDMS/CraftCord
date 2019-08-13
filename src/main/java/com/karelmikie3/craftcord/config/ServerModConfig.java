@@ -16,12 +16,16 @@
 
 package com.karelmikie3.craftcord.config;
 
+import com.karelmikie3.craftcord.discord.MinecraftPresence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.Collections;
+import java.util.List;
 
 class ServerModConfig {
 
@@ -44,6 +48,8 @@ class ServerModConfig {
     final ForgeConfigSpec.BooleanValue BROADCAST_SERVER_START_STOP;
     final ForgeConfigSpec.BooleanValue BROADCAST_PLAYER_JOIN_LEAVE;
     final ForgeConfigSpec.BooleanValue BROADCAST_CRASH;
+
+    final ForgeConfigSpec.ConfigValue<List<? extends String>> PRESENCE_LIST;
 
     private ServerModConfig(ForgeConfigSpec.Builder builder) {
         builder.comment("Server settings")
@@ -105,6 +111,20 @@ class ServerModConfig {
                 .comment("Broadcast to Discord a crash occurs.")
                 .translation("craftcord.configgui.broadcastCrash")
                 .define("Broadcast crash", FMLEnvironment.dist == Dist.DEDICATED_SERVER);
+
+        //if anyone knows how to make a proper enum config list, please tell me.
+        this.PRESENCE_LIST = builder
+                //TODO: add options.
+                .comment("A list of things to display on the bot's Discord presence.", "Options: .")
+                .translation("craftcord.configgui.presenceList")
+                .defineList("presence list", Collections.singletonList(MinecraftPresence.TEST.toString()), o -> {
+                    try {
+                        MinecraftPresence.valueOf((String) o);
+                        return true;
+                    } catch (Exception ignored) {
+                        return false;
+                    }
+                });
 
         builder.pop();
     }
