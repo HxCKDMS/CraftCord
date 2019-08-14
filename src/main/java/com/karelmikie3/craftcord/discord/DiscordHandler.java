@@ -54,8 +54,8 @@ import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static net.minecraft.util.text.TextFormatting.*;
 
@@ -161,11 +161,11 @@ public class DiscordHandler {
     }
 
     private long counter = 0;
-    private static final long TICK_AMOUNT = 20;
+    //private static long TICK_AMOUNT = Config.getPresenceUpdateRate() * 20;
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.END && event.side.isServer() ) {
-            if (counter % TICK_AMOUNT == 0) {
+            if (counter % (Config.getPresenceUpdateRate() * 20) == 0) {
                 updatePresence(ServerLifecycleHooks.getCurrentServer());
             }
             ++counter;
@@ -180,7 +180,7 @@ public class DiscordHandler {
             HttpResponse response = client.execute(getRequest);
 
             try (InputStream input = response.getEntity().getContent();
-                 InputStreamReader reader = new InputStreamReader(input)) {
+                 InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
 
                 JsonObject jsonObject = JSONUtils.fromJson(reader);
 
@@ -242,11 +242,23 @@ public class DiscordHandler {
     }
 
     private String lastPresence = "";
-    public void updatePresence(MinecraftServer server) {
-        String presenceString = this.presences.stream()
+    private void updatePresence(MinecraftServer server) {
+        if (!Config.displayPresence())
+            return;
+
+        final StringJoiner joiner = new StringJoiner(", ");
+
+        this.presences.stream()
                 .map(IMinecraftPresence::getMessage)
                 .map(func -> func.apply(server))
-                .collect(Collectors.joining(", "));
+                .forEach(s -> {
+                    if (joiner.length() + s.length() <= 126) {
+                        joiner.add(s);
+                    } else {
+                        LOGGER.warn("Skipping adding '{}' to the presence, because it results in a presence longer than 126 characters.", s);
+                    }
+                });
+        String presenceString = joiner.toString();
 
         if (!lastPresence.equals(presenceString)) {
             lastPresence = presenceString;

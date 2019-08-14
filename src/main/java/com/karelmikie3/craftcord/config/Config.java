@@ -16,7 +16,8 @@
 
 package com.karelmikie3.craftcord.config;
 
-import com.karelmikie3.craftcord.discord.MinecraftPresence;
+import com.karelmikie3.craftcord.api.Globals;
+import com.karelmikie3.craftcord.discord.IMinecraftPresence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.loading.FMLEnvironment;
@@ -98,11 +99,16 @@ public class Config {
         return SERVER.BROADCAST_CRASH.get();
     }
 
-    public static List<MinecraftPresence> getPresenceList() {
-        //return SERVER.PRESENCE_LIST.get().stream().map(ForgeConfigSpec.ConfigValue::get).map(o -> (MinecraftPresence) o).collect(Collectors.toList());
-        return SERVER.PRESENCE_LIST.get().stream().map(MinecraftPresence::valueOf).collect(Collectors.toList());
-        //return new LinkedList<>(SERVER.PRESENCE_LIST.get());
-        //return Collections.emptyList();
+    public static boolean displayPresence() {
+        return SERVER.DISPLAY_PRESENCE.get();
+    }
+
+    public static int getPresenceUpdateRate() {
+        return SERVER.PRESENCE_UPDATE_RATE.get();
+    }
+
+    public static List<IMinecraftPresence> getPresenceList() {
+        return SERVER.PRESENCE_LIST.get().stream().map(Globals.PRESENCE_REGISTRY::getPresence).collect(Collectors.toList());
     }
 
     @OnlyIn(Dist.CLIENT)

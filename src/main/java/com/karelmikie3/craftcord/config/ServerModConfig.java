@@ -16,6 +16,7 @@
 
 package com.karelmikie3.craftcord.config;
 
+import com.karelmikie3.craftcord.api.Globals;
 import com.karelmikie3.craftcord.discord.MinecraftPresence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -49,6 +50,8 @@ class ServerModConfig {
     final ForgeConfigSpec.BooleanValue BROADCAST_PLAYER_JOIN_LEAVE;
     final ForgeConfigSpec.BooleanValue BROADCAST_CRASH;
 
+    final ForgeConfigSpec.BooleanValue DISPLAY_PRESENCE;
+    final ForgeConfigSpec.IntValue PRESENCE_UPDATE_RATE;
     final ForgeConfigSpec.ConfigValue<List<? extends String>> PRESENCE_LIST;
 
     private ServerModConfig(ForgeConfigSpec.Builder builder) {
@@ -112,15 +115,24 @@ class ServerModConfig {
                 .translation("craftcord.configgui.broadcastCrash")
                 .define("Broadcast crash", FMLEnvironment.dist == Dist.DEDICATED_SERVER);
 
-        //if anyone knows how to make a proper enum config list, please tell me.
+        this.DISPLAY_PRESENCE = builder
+                .comment("Enable displaying this server's presence using the bot.")
+                .translation("craftcord.configgui.displayPresence")
+                .define("Display presence", true);
+
+        this.PRESENCE_UPDATE_RATE = builder
+                .comment("How fasts it updates the Discord presence in seconds.")
+                .translation("craftcord.configgui.presenceUpdateRate")
+                .defineInRange("Update rate", 5, 1, Integer.MAX_VALUE);
+
         this.PRESENCE_LIST = builder
                 //TODO: add options.
-                .comment("A list of things to display on the bot's Discord presence.", "Options: .")
+                .comment("A list of things to display on the bot's Discord presence.",
+                        "Options: " + String.join(", ", Globals.PRESENCE_REGISTRY.getAllPresenceNames()) + ".")
                 .translation("craftcord.configgui.presenceList")
-                .defineList("presence list", Collections.singletonList(MinecraftPresence.TEST.toString()), o -> {
+                .defineList("presence list", Collections.singletonList(MinecraftPresence.AMOUNT_PLAYING.toString()), o -> {
                     try {
-                        MinecraftPresence.valueOf((String) o);
-                        return true;
+                        return Globals.PRESENCE_REGISTRY.doesPresenceExist((String) o);
                     } catch (Exception ignored) {
                         return false;
                     }

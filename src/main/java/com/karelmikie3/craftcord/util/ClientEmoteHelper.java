@@ -38,6 +38,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -169,7 +170,7 @@ public final class ClientEmoteHelper {
         if (data != null) {
             JsonObject metadataJson = new JsonObject();
             metadataJson.add("emote", emoteJson);
-            byte[] metadata = GSON.toJson(metadataJson).getBytes();
+            byte[] metadata = GSON.toJson(metadataJson).getBytes(StandardCharsets.UTF_8);
 
             emoteData.put(emoteID, data);
             emoteMetadata.put(emoteID, metadata);

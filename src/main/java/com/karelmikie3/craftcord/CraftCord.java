@@ -16,8 +16,11 @@
 
 package com.karelmikie3.craftcord;
 
+import com.karelmikie3.craftcord.api.Globals;
+import com.karelmikie3.craftcord.api.presence.PresenceRegistry;
 import com.karelmikie3.craftcord.config.Config;
 import com.karelmikie3.craftcord.discord.DiscordHandler;
+import com.karelmikie3.craftcord.discord.MinecraftPresence;
 import com.karelmikie3.craftcord.event.EntityEvents;
 import com.karelmikie3.craftcord.event.chat.ClientChatEvents;
 import com.karelmikie3.craftcord.event.chat.ServerChatEvents;
@@ -71,6 +74,7 @@ public class CraftCord {
     public CraftCord() {
         INSTANCE = this;
         DISCORD_HANDLER = new DiscordHandler();
+        Globals.PRESENCE_REGISTRY = new PresenceRegistry();
         proxy.constructor();
 
         MinecraftForge.EVENT_BUS.register(this);
@@ -79,8 +83,8 @@ public class CraftCord {
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::initClient);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
+        Globals.PRESENCE_REGISTRY.registerPresence(MinecraftPresence.class);
         Config.initConfigs();
-
     }
 
     private void setup(final FMLCommonSetupEvent event) {
@@ -99,7 +103,6 @@ public class CraftCord {
                 .decoder(RequestEmoteMessageC2S::decode)
                 .consumer(RequestEmoteMessageC2S::handle)
                 .add();
-
     }
 
     private void initClient(final FMLClientSetupEvent event) {
