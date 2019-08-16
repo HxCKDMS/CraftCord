@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package com.karelmikie3.craftcord.discord;
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
+package com.karelmikie3.craftcord.api.status;
 
-import net.minecraft.server.MinecraftServer;
+import mcp.MethodsReturnNonnullByDefault;
 
-import java.util.function.Function;
-
-public interface IMinecraftPresence {
-    Function<MinecraftServer, String> getMessage();
-}
+import javax.annotation.ParametersAreNonnullByDefault;

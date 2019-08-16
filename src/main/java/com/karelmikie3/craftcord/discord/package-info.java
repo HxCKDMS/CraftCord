@@ -14,19 +14,10 @@
  * limitations under the License.
  */
 
-package com.karelmikie3.craftcord.api;
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
+package com.karelmikie3.craftcord.discord;
 
-import com.karelmikie3.craftcord.api.presence.PresenceRegistry;
-import com.karelmikie3.craftcord.api.status.StatusRegistry;
+import mcp.MethodsReturnNonnullByDefault;
 
-public final class Globals {
-    /**
-     * populated on mod construction.
-     */
-    public static PresenceRegistry PRESENCE_REGISTRY;
-
-    /**
-     * populated on mod construction.
-     */
-    public static StatusRegistry STATUS_REGISTRY;
-}
+import javax.annotation.ParametersAreNonnullByDefault;

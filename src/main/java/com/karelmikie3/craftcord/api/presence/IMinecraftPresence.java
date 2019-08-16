@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-package com.karelmikie3.craftcord.api;
+package com.karelmikie3.craftcord.api.presence;
 
-import com.karelmikie3.craftcord.api.presence.PresenceRegistry;
-import com.karelmikie3.craftcord.api.status.StatusRegistry;
+import net.minecraft.server.MinecraftServer;
 
-public final class Globals {
-    /**
-     * populated on mod construction.
-     */
-    public static PresenceRegistry PRESENCE_REGISTRY;
+import java.util.function.Function;
 
-    /**
-     * populated on mod construction.
-     */
-    public static StatusRegistry STATUS_REGISTRY;
+public interface IMinecraftPresence {
+    Function<MinecraftServer, String> getMessage();
 }

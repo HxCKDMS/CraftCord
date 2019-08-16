@@ -16,7 +16,6 @@
 
 package com.karelmikie3.craftcord.api.presence;
 
-import com.karelmikie3.craftcord.discord.IMinecraftPresence;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

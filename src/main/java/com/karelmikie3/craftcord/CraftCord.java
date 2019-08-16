@@ -18,9 +18,11 @@ package com.karelmikie3.craftcord;
 
 import com.karelmikie3.craftcord.api.Globals;
 import com.karelmikie3.craftcord.api.presence.PresenceRegistry;
+import com.karelmikie3.craftcord.api.status.StatusRegistry;
 import com.karelmikie3.craftcord.config.Config;
 import com.karelmikie3.craftcord.discord.DiscordHandler;
 import com.karelmikie3.craftcord.discord.MinecraftPresence;
+import com.karelmikie3.craftcord.discord.MinecraftStatus;
 import com.karelmikie3.craftcord.event.EntityEvents;
 import com.karelmikie3.craftcord.event.chat.ClientChatEvents;
 import com.karelmikie3.craftcord.event.chat.ServerChatEvents;
@@ -75,6 +77,7 @@ public class CraftCord {
         INSTANCE = this;
         DISCORD_HANDLER = new DiscordHandler();
         Globals.PRESENCE_REGISTRY = new PresenceRegistry();
+        Globals.STATUS_REGISTRY = new StatusRegistry();
         proxy.constructor();
 
         MinecraftForge.EVENT_BUS.register(this);
@@ -84,6 +87,7 @@ public class CraftCord {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::initClient);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         Globals.PRESENCE_REGISTRY.registerPresence(MinecraftPresence.class);
+        Globals.STATUS_REGISTRY.registerStatus(MinecraftStatus.class);
         Config.initConfigs();
     }
 

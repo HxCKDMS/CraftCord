@@ -18,6 +18,7 @@ package com.karelmikie3.craftcord.config;
 
 import com.karelmikie3.craftcord.api.Globals;
 import com.karelmikie3.craftcord.discord.MinecraftPresence;
+import com.karelmikie3.craftcord.discord.MinecraftStatus;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -51,8 +52,12 @@ class ServerModConfig {
     final ForgeConfigSpec.BooleanValue BROADCAST_CRASH;
 
     final ForgeConfigSpec.BooleanValue DISPLAY_PRESENCE;
-    final ForgeConfigSpec.IntValue PRESENCE_UPDATE_RATE;
+    final ForgeConfigSpec.BooleanValue DISPLAY_STATUS;
+    final ForgeConfigSpec.LongValue STATUS_CHANNEL_ID;
+    final ForgeConfigSpec.LongValue STATUS_MESSAGE_ID;
+    final ForgeConfigSpec.IntValue PRESENCE_STATUS_UPDATE_RATE;
     final ForgeConfigSpec.ConfigValue<List<? extends String>> PRESENCE_LIST;
+    final ForgeConfigSpec.ConfigValue<List<? extends String>> STATUS_LIST;
 
     private ServerModConfig(ForgeConfigSpec.Builder builder) {
         builder.comment("Server settings")
@@ -120,19 +125,45 @@ class ServerModConfig {
                 .translation("craftcord.configgui.displayPresence")
                 .define("Display presence", true);
 
-        this.PRESENCE_UPDATE_RATE = builder
-                .comment("How fasts it updates the Discord presence in seconds.")
-                .translation("craftcord.configgui.presenceUpdateRate")
+        this.DISPLAY_STATUS = builder
+                .comment("Enable displaying this server's status in a Discord embed message.")
+                .translation("craftcord.configgui.displayStatus")
+                .define("Display status", false);
+
+        this.STATUS_CHANNEL_ID = builder
+                .comment("The Discord channel ID of the status message to be updated.")
+                .translation("craftcord.configgui.statusMessageID")
+                .defineInRange("Status channel ID", 0L, 0L, Long.MAX_VALUE);
+
+        this.STATUS_MESSAGE_ID = builder
+                .comment("The Discord message ID of the status message to be updated.")
+                .translation("craftcord.configgui.statusMessageID")
+                .defineInRange("Status message ID", 0L, 0L, Long.MAX_VALUE);
+
+        this.PRESENCE_STATUS_UPDATE_RATE = builder
+                .comment("How fasts it updates the Discord presence and status in seconds.")
+                .translation("craftcord.configgui.presenceStatusUpdateRate")
                 .defineInRange("Update rate", 5, 1, Integer.MAX_VALUE);
 
         this.PRESENCE_LIST = builder
-                //TODO: add options.
                 .comment("A list of things to display on the bot's Discord presence.",
                         "Options: " + String.join(", ", Globals.PRESENCE_REGISTRY.getAllPresenceNames()) + ".")
                 .translation("craftcord.configgui.presenceList")
-                .defineList("presence list", Collections.singletonList(MinecraftPresence.AMOUNT_PLAYING.toString()), o -> {
+                .defineList("Presence list", Collections.singletonList(MinecraftPresence.AMOUNT_PLAYING_AND_TOTAL.toString()), o -> {
                     try {
                         return Globals.PRESENCE_REGISTRY.doesPresenceExist((String) o);
+                    } catch (Exception ignored) {
+                        return false;
+                    }
+                });
+
+        this.STATUS_LIST = builder
+                .comment("A list of things to display on the bot's Discord status message.",
+                        "Options: " + String.join(", ", Globals.STATUS_REGISTRY.getAllStatusNames()) + ".")
+                .translation("craftcord.configgui.statusList")
+                .defineList("Status list", Collections.singletonList(MinecraftStatus.TEST.toString()),o -> {
+                    try {
+                        return Globals.STATUS_REGISTRY.doesStatusExist((String) o);
                     } catch (Exception ignored) {
                         return false;
                     }

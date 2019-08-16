@@ -17,7 +17,8 @@
 package com.karelmikie3.craftcord.config;
 
 import com.karelmikie3.craftcord.api.Globals;
-import com.karelmikie3.craftcord.discord.IMinecraftPresence;
+import com.karelmikie3.craftcord.api.presence.IMinecraftPresence;
+import com.karelmikie3.craftcord.api.status.IMinecraftStatus;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.loading.FMLEnvironment;
@@ -103,12 +104,42 @@ public class Config {
         return SERVER.DISPLAY_PRESENCE.get();
     }
 
-    public static int getPresenceUpdateRate() {
-        return SERVER.PRESENCE_UPDATE_RATE.get();
+    public static boolean displayStatus() {
+        return SERVER.DISPLAY_STATUS.get();
+    }
+
+    public static long getStatusChannelID() {
+        return SERVER.STATUS_CHANNEL_ID.get();
+    }
+
+    public static void setStatusChannelID(long id) {
+        SERVER.STATUS_CHANNEL_ID.set(id);
+        SERVER.STATUS_CHANNEL_ID.save();
+    }
+
+    public static long getStatusMessageID() {
+        return SERVER.STATUS_MESSAGE_ID.get();
+    }
+
+    public static void setStatusMessageID(long id) {
+        SERVER.STATUS_MESSAGE_ID.set(id);
+        SERVER.STATUS_MESSAGE_ID.save();
+    }
+
+    public static int getPresenceStatusUpdateRate() {
+        return SERVER.PRESENCE_STATUS_UPDATE_RATE.get();
     }
 
     public static List<IMinecraftPresence> getPresenceList() {
-        return SERVER.PRESENCE_LIST.get().stream().map(Globals.PRESENCE_REGISTRY::getPresence).collect(Collectors.toList());
+        return SERVER.PRESENCE_LIST.get().stream()
+                .map(Globals.PRESENCE_REGISTRY::getPresence)
+                .collect(Collectors.toList());
+    }
+
+    public static List<IMinecraftStatus> getStatusList() {
+        return SERVER.STATUS_LIST.get().stream()
+                .map(Globals.STATUS_REGISTRY::getStatus)
+                .collect(Collectors.toList());
     }
 
     @OnlyIn(Dist.CLIENT)

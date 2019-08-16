@@ -16,33 +16,33 @@
 
 package com.karelmikie3.craftcord.discord;
 
+import com.karelmikie3.craftcord.api.presence.IMinecraftPresence;
 import com.karelmikie3.craftcord.util.TimeHelper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public enum MinecraftPresence implements IMinecraftPresence {
     AMOUNT_PLAYING(server -> server.getCurrentPlayerCount() + String.format(" player%s playing", server.getCurrentPlayerCount() == 1 ? "" : "s")),
     AMOUNT_PLAYING_OF_TOTAL(server -> server.getCurrentPlayerCount() + "/" + server.getMaxPlayers() + " players"),
     AMOUNT_PLAYING_AND_TOTAL(server -> server.getCurrentPlayerCount() + String.format(" player%s playing", server.getCurrentPlayerCount() == 1 ? "" : "s") + String.format(" (%d/%d)", server.getCurrentPlayerCount(), server.getMaxPlayers())),
-    DAY((server) -> "Day: " + server.getWorld(DimensionType.OVERWORLD).getDayTime() / 24000L % 2147483647L),
+    DAY(server -> "Day: " + server.getWorld(DimensionType.OVERWORLD).getDayTime() / 24000L % 2147483647L),
     /**
      * shows time of the day in the overworld.
      */
-    TIME_OF_DAY((server) -> "Time: " + TimeHelper.getTimeOfDay(server.getWorld(DimensionType.OVERWORLD).getDayTime())),
+    TIME_OF_DAY(server -> "Time: " + TimeHelper.getTimeOfDay(server.getWorld(DimensionType.OVERWORLD).getDayTime())),
     /**
      * shows server tps.
      */
-    TPS((server) -> "Server TPS: " + TimeHelper.getMeanTPS(server)),
+    TPS(server -> "Server TPS: " + TimeHelper.getMeanTPS(server)),
     /**
      * shows weather in the overworld.
      */
-    WEATHER((server) -> "Weather: " + (server.getWorld(DimensionType.OVERWORLD).isThundering() ? "Thunderstorm" : server.getWorld(DimensionType.OVERWORLD).isRaining() ? "Rainstorm" : "Clear")),
-    DIFFICULTY((server) -> "Difficulty: " + (server.isHardcore() ? "HARDCORE" : server.getDifficulty().name())),
-    HARDCORE((server) -> server.isHardcore() ? "Playing on hardcore" : "Not playing on hardcore"),
-    SEED((server) -> "Seed: " + server.getWorld(DimensionType.OVERWORLD).getWorldInfo().getSeed());
+    WEATHER(server -> "Weather: " + (server.getWorld(DimensionType.OVERWORLD).isThundering() ? "Thunderstorm" : server.getWorld(DimensionType.OVERWORLD).isRaining() ? "Rainstorm" : "Clear")),
+    DIFFICULTY(server -> "Difficulty: " + (server.isHardcore() ? "HARDCORE" : server.getDifficulty().name())),
+    HARDCORE(server -> server.isHardcore() ? "Playing on hardcore" : "Not playing on hardcore"),
+    SEED(server -> "Seed: " + server.getWorld(DimensionType.OVERWORLD).getWorldInfo().getSeed());
 
 
     private final Function<MinecraftServer, String> message;
@@ -51,12 +51,8 @@ public enum MinecraftPresence implements IMinecraftPresence {
         this.message = message;
     }
 
-    MinecraftPresence(final Supplier<String> message) {
-        this.message = (server) -> message.get();
-    }
-
     MinecraftPresence(final String message) {
-        this((server) -> message);
+        this(server -> message);
     }
 
     @Override

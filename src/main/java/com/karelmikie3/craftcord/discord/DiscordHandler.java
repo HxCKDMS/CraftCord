@@ -17,15 +17,19 @@
 package com.karelmikie3.craftcord.discord;
 
 import com.google.gson.JsonObject;
+import com.karelmikie3.craftcord.api.presence.IMinecraftPresence;
+import com.karelmikie3.craftcord.api.status.IMinecraftStatus;
 import com.karelmikie3.craftcord.config.Config;
 import com.karelmikie3.craftcord.util.ColorHelper;
 import com.karelmikie3.craftcord.util.CommonEmoteHelper;
 import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.entities.Emote;
-import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.webhook.WebhookClient;
 import net.dv8tion.jda.webhook.WebhookClientBuilder;
@@ -75,6 +79,7 @@ public class DiscordHandler {
     private Long guildID;
 
     private final List<IMinecraftPresence> presences = new LinkedList<>();
+    private final List<IMinecraftStatus> statuses = new LinkedList<>();
 
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event) {
@@ -127,13 +132,14 @@ public class DiscordHandler {
         }
 
         //TODO: do this for config load/reload events.
-        setBotPresence(new ArrayList<>(Config.getPresenceList()));
-        System.out.println(Config.getPresenceList());
+        setPresence(new ArrayList<>(Config.getPresenceList()));
+        setStatus(new ArrayList<>(Config.getStatusList()));
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onServerStopping(FMLServerStoppingEvent event) {
         presences.clear();
+        statuses.clear();
         updatePresence(event.getServer());
 
         webhookStatus = DiscordSetupStatus.STOPPING;
@@ -165,8 +171,9 @@ public class DiscordHandler {
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.END && event.side.isServer() ) {
-            if (counter % (Config.getPresenceUpdateRate() * 20) == 0) {
+            if (counter % (Config.getPresenceStatusUpdateRate() * 20) == 0) {
                 updatePresence(ServerLifecycleHooks.getCurrentServer());
+                updateStatus(ServerLifecycleHooks.getCurrentServer());
             }
             ++counter;
         }
@@ -228,15 +235,15 @@ public class DiscordHandler {
         return webhookStatus;
     }
 
-    public void setBotPresence(IMinecraftPresence presence) {
-        setBotPresence(Collections.singleton(presence));
+    public void setPresence(IMinecraftPresence presence) {
+        setPresence(Collections.singleton(presence));
     }
 
     /**
      * Sets the internal {@link List} of Presences call {@link #updatePresence(MinecraftServer)} to update the presence displayed in Discord.
-     * @param presences {@link Collection} of {@link IMinecraftPresence} that represents are displayed in Discord delimited by ', '.
+     * @param presences {@link Collection} of {@link IMinecraftPresence} that are displayed in Discord delimited by ', '.
      */
-    public void setBotPresence(Collection<IMinecraftPresence> presences) {
+    public void setPresence(Collection<IMinecraftPresence> presences) {
         this.presences.clear();
         this.presences.addAll(presences);
     }
@@ -270,6 +277,71 @@ public class DiscordHandler {
         }
     }
 
+    public void setStatus(IMinecraftStatus status) {
+        setStatus(Collections.singleton(status));
+    }
+
+    /**
+     * Sets the internal {@link List} of Presences call {@link #updateStatus(MinecraftServer)} to update the status displayed in Discord.
+     * @param statuses {@link Collection} of {@link IMinecraftStatus} that are displayed in Discord delimited by ', '.
+     */
+    public void setStatus(Collection<IMinecraftStatus> statuses) {
+        this.statuses.clear();
+        this.statuses.addAll(statuses);
+    }
+
+    private MessageEmbed lastEmbed;
+    //TODO: change complete() to queue().
+    private void updateStatus(MinecraftServer server) {
+        if (!Config.displayStatus() || Config.getStatusChannelID() == 0L)
+            return;
+
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setTitle("Minecraft status");
+
+        this.statuses.stream()
+                .map(status -> new MessageEmbed.Field(status.getTitle().apply(server), status.getMessage().apply(server), true))
+                .forEach(builder::addField);
+
+        MessageEmbed embed = builder.build();
+        if (Objects.equals(embed, lastEmbed))
+            return;
+
+        TextChannel channel = getBot().getTextChannelById(Config.getStatusChannelID());
+        if (!channel.canTalk()) {
+            LOGGER.warn("Can't talk in designated status channel.");
+            //TODO: notify OPs in game.
+            return;
+        }
+        if (Config.getStatusMessageID() == 0L) {
+            LOGGER.info("Status message ID '0' assuming config wasn't set. Posting a message myself.");
+
+            Message message = channel.sendMessage(embed).complete();
+
+            Config.setStatusMessageID(message.getIdLong());
+            lastEmbed = embed;
+        } else {
+            try {
+                channel.editMessageById(Config.getStatusMessageID(), embed).complete();
+                lastEmbed = embed;
+            } catch (ErrorResponseException e) {
+                switch (e.getErrorResponse()) {
+                    case INVALID_AUTHOR_EDIT:
+                    case MISSING_ACCESS:
+                    case UNKNOWN_MESSAGE:
+                        Config.setStatusMessageID(0L);
+                        LOGGER.warn("No access to message, posting a new one.");
+                        LOGGER.debug(e);
+                        break;
+                    default:
+                        LOGGER.error("Other erroneous response please report.", e);
+                        break;
+                }
+            }
+        }
+
+    }
+
     private class DiscordEvents extends ListenerAdapter {
         private final MinecraftServer SERVER = ServerLifecycleHooks.getCurrentServer();
 
@@ -295,6 +367,14 @@ public class DiscordHandler {
                 //If mod language files load on server change to translation.
                 SERVER.sendMessage(new StringTextComponent(BLUE + "[" + DARK_BLUE + "DISCORD" + BLUE + "]" + RESET + "<").appendSibling(messengerName).appendText("> ").appendText(message));
                 SERVER.getPlayerList().sendPacketToAllPlayers(new SChatPacket(chatMessage, ChatType.CHAT));
+            }
+        }
+
+        @Override
+        public void onMessageDelete(MessageDeleteEvent event) {
+            if (Config.getStatusMessageID() == event.getMessageIdLong()) {
+                DiscordHandler.this.lastEmbed = null;
+                Config.setStatusMessageID(0L);
             }
         }
     }
