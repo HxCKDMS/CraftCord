@@ -17,7 +17,7 @@
 package com.karelmikie3.craftcord.discord;
 
 import com.karelmikie3.craftcord.api.presence.IMinecraftPresence;
-import com.karelmikie3.craftcord.util.TimeHelper;
+import com.karelmikie3.craftcord.util.StatusPresenceHelper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -31,11 +31,11 @@ public enum MinecraftPresence implements IMinecraftPresence {
     /**
      * shows time of the day in the overworld.
      */
-    TIME_OF_DAY(server -> "Time: " + TimeHelper.getTimeOfDay(server.getWorld(DimensionType.OVERWORLD).getDayTime())),
+    TIME_OF_DAY(server -> "Time: " + StatusPresenceHelper.getTimeOfDay(server.getWorld(DimensionType.OVERWORLD).getDayTime())),
     /**
      * shows server tps.
      */
-    TPS(server -> "Server TPS: " + TimeHelper.getMeanTPS(server)),
+    TPS(server -> "Server TPS: " + StatusPresenceHelper.getMeanTPS(server)),
     /**
      * shows weather in the overworld.
      */
