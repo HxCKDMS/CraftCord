@@ -250,7 +250,7 @@ public class DiscordHandler {
 
     private String lastPresence = "";
     private void updatePresence(MinecraftServer server) {
-        if (!Config.displayPresence())
+        if (!Config.displayPresence() || getBotStatus() != DiscordSetupStatus.DONE)
             return;
 
         final StringJoiner joiner = new StringJoiner(", ");
@@ -293,7 +293,7 @@ public class DiscordHandler {
     private MessageEmbed lastEmbed;
     //TODO: change complete() to queue().
     private void updateStatus(MinecraftServer server) {
-        if (!Config.displayStatus() || Config.getStatusChannelID() == 0L)
+        if (!Config.displayStatus() || getBotStatus() != DiscordSetupStatus.DONE || Config.getStatusChannelID() == 0L)
             return;
 
         EmbedBuilder builder = new EmbedBuilder();
