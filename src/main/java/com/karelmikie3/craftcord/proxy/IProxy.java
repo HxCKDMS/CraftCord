@@ -16,7 +16,11 @@
 
 package com.karelmikie3.craftcord.proxy;
 
+import com.karelmikie3.craftcord.CraftCord;
+
 public interface IProxy {
-    void constructor();
-    void setup();
+    void constructor(CraftCord mod);
+    void setup(CraftCord mod);
+
+    Object getClientDiscordHandler();
 }

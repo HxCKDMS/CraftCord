@@ -16,7 +16,7 @@
 
 package com.karelmikie3.craftcord.event.chat;
 
-import com.karelmikie3.craftcord.util.ClientEmoteHelper;
+import com.karelmikie3.craftcord.CraftCord;
 import com.karelmikie3.craftcord.util.CommonEmoteHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -39,8 +39,11 @@ public class ClientChatEvents {
     public void clientChatEvent(ClientChatEvent event) {
         String message = event.getMessage();
 
-        List<String> emotes = CommonEmoteHelper.getOrderedEmotes(message, ClientEmoteHelper::hasEmote);
-        LinkedList<String> emoteIds = emotes.parallelStream().map(ClientEmoteHelper::getEmoteID).collect(Collectors.toCollection(LinkedList::new));
+        List<String> emotes = CommonEmoteHelper.getOrderedEmotes(message, CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider::exists);
+        LinkedList<String> emoteIds = emotes.parallelStream()
+                .mapToLong(CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider::getEmoteID)
+                .mapToObj(Long::toString)
+                .collect(Collectors.toCollection(LinkedList::new));
 
         for (String emote : emotes) {
             message = message.replaceFirst(":" + emote + ":", ":" + emoteIds.removeFirst() + ":");

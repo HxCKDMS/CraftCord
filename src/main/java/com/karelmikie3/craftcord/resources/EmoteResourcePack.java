@@ -17,7 +17,7 @@
 package com.karelmikie3.craftcord.resources;
 
 import com.google.common.collect.Sets;
-import com.karelmikie3.craftcord.util.ClientEmoteHelper;
+import com.karelmikie3.craftcord.CraftCord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.resources.ResourcePack;
@@ -28,7 +28,6 @@ import net.minecraftforge.resource.IResourceType;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 
 import javax.annotation.Nullable;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Collection;
@@ -45,21 +44,25 @@ public class EmoteResourcePack extends ResourcePack implements ISelectiveResourc
 
     @Override
     protected InputStream getInputStream(String resourcePath) {
-        String usefulResourcePath = resourcePath.replace("assets/craftcordemotes/textures/emotedata/", "").replaceAll("\\.[^.]*$", "");
+        String emoteIDString = resourcePath.replace("assets/craftcordemotes/textures/emotedata/", "").replaceAll("\\.[^.]*$", "");
+        long emoteID = Long.parseLong(emoteIDString);
 
         if (resourcePath.endsWith(".mcmeta"))
-            return new ByteArrayInputStream(ClientEmoteHelper.getEmoteMetadata(usefulResourcePath));
+            return CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider.getInput(emoteID, true);
 
 
-        return new ByteArrayInputStream(ClientEmoteHelper.getEmoteData(usefulResourcePath));
+        return CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider.getInput(emoteID, false);
     }
 
     @Override
     protected boolean resourceExists(String resourcePath) {
-        if (resourcePath.endsWith(".lang"))
+        if (resourcePath.endsWith(".json"))
             return false;
 
-        return ClientEmoteHelper.hasEmoteData(resourcePath.replace("assets/craftcordemotes/textures/emotedata/", "").replaceAll("\\.[^.]*$", ""));
+        String emoteIDString = resourcePath.replace("assets/craftcordemotes/textures/emotedata/", "").replaceAll("\\.[^.]*$", "");
+        long emoteID = Long.parseLong(emoteIDString);
+
+        return CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider.exists(emoteID);
     }
 
     @Override
