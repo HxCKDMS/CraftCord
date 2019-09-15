@@ -50,6 +50,8 @@ public final class NewChatGuiPatch {
         }
     };
 
+    private static Predicate<String> emoteStrip = s -> CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider.exists(Long.parseLong(s));
+
     public static String addEmotes(String text, float y) {
         if (Config.emoteRenderingEnabled() && text != null && !text.isEmpty()) {
             for (String emoteIDString : CommonEmoteHelper.getOrderedEmotes(text, emoteTest)) {
@@ -84,9 +86,9 @@ public final class NewChatGuiPatch {
         for (ITextComponent iTextComponent : components) {
             String text = iTextComponent.getUnformattedComponentText();
 
-            emotesToAdd.addAll(CommonEmoteHelper.getOrderedEmotes(text, CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider::exists));
+            emotesToAdd.addAll(CommonEmoteHelper.getOrderedEmotes(text, emoteTest.and(emoteStrip)));
 
-            for (String emote : CommonEmoteHelper.getOrderedEmotes(text, CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider::exists)) {
+            for (String emote : CommonEmoteHelper.getOrderedEmotes(text, emoteTest.and(emoteStrip))) {
                 String[] parts = text.split(":" + emote + ":", 2);
                 text = parts[0] + "\u200ba" + parts[1];
             }

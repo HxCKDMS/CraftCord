@@ -359,8 +359,16 @@ public class DiscordHandler {
                     CommonEmoteHelper.addToLocalEmoteCache(emote);
                     message = message.replace(":" + emote.getName() + ":", ":" + emote.getId() + ":");
                 }
-                ITextComponent messengerName = new StringTextComponent(event.getMember().getEffectiveName())
-                        .applyTextStyle(ColorHelper.getNearestColor(event.getMember().getColor()));
+
+                ITextComponent messengerName;
+
+                if (event.getMember() != null) {
+                    messengerName = new StringTextComponent(event.getMember().getEffectiveName())
+                            .applyTextStyle(ColorHelper.getNearestColor(event.getMember().getColor()));
+                } else {
+                    messengerName = new StringTextComponent(event.getAuthor().getName())
+                            .applyTextStyle(WHITE);
+                }
 
                 ITextComponent chatMessage = new TranslationTextComponent("chat.type.discordText", messengerName, message);
 

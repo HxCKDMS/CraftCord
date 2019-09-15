@@ -258,11 +258,6 @@ public class MemoryEmoteProvider implements IEmoteProvider {
     }
 
     @Override
-    public boolean canClientUse(String displayName) {
-        return usable.contains(displayName);
-    }
-
-    @Override
     public void requestFromServer(long emoteID) {
         if (!requested.contains(emoteID)) {
             requested.add(emoteID);

@@ -89,6 +89,7 @@ public class EmoteResourcePack extends ResourcePack implements ISelectiveResourc
     public <T> T getMetadata(IMetadataSectionSerializer<T> deserializer) {
         return null;
     }
+
     @Override
     public void onResourceManagerReload(IResourceManager resourceManager, Predicate<IResourceType> resourcePredicate) {
         mc.getResourceManager().addResourcePack(this);

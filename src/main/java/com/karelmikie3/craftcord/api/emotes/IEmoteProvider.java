@@ -9,7 +9,6 @@ public interface IEmoteProvider {
     boolean exists(long emoteID);
     boolean exists(String displayName);
     long getEmoteID(String displayName);
-    boolean canClientUse(String displayName);
     void requestFromServer(long emoteID);
     Set<String> usableEmotes();
 }
