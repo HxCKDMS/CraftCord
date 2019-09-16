@@ -50,6 +50,7 @@ class ServerModConfig {
     final ForgeConfigSpec.BooleanValue BROADCAST_SERVER_START_STOP;
     final ForgeConfigSpec.BooleanValue BROADCAST_PLAYER_JOIN_LEAVE;
     final ForgeConfigSpec.BooleanValue BROADCAST_CRASH;
+    final ForgeConfigSpec.ConfigValue<String> DISCORD_COMMAND_CHARACTER;
 
     final ForgeConfigSpec.BooleanValue DISPLAY_PRESENCE;
     final ForgeConfigSpec.BooleanValue DISPLAY_STATUS;
@@ -79,6 +80,12 @@ class ServerModConfig {
                         "Used to post messages to the server.")
                 .translation("craftcord.configgui.discordWebhookURL")
                 .define("Discord webhook URL", "");
+
+
+        this.DISCORD_COMMAND_CHARACTER = builder
+                .comment("This is the character for executing commands from discord.")
+                .translation("craftcord.configgui.discordCommandCharacter")
+                .define("Discord Command Character", "!");
 
         this.BROADCAST_DISCORD_CHAT = builder
                 .comment("Send Discord messages to Minecraft chat.")

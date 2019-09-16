@@ -35,7 +35,29 @@ public final class CommonEmoteHelper {
         for (char c : text.toCharArray()) {
             if (c == ':' && !buildingEmote) {
                 buildingEmote = true;
-            } else if ((c >= 'a' && 'z' >= c || c >= 'A' && 'Z' >= c || c >= '0' && '9' >= c || c == '-') && buildingEmote) {
+            } else if ((c >= 'a' && 'z' >= c || c >= 'A' && 'Z' >= c || c >= '0' && '9' >= c || c == '-' || c == '_') && buildingEmote) {
+                emoteBuilder.append(c);
+            } else if (c == ':' && emoteBuilder.length() > 0) {
+                buildingEmote = false;
+                if (emoteCheck.test(emoteBuilder.toString())) {
+                    emotes.add(emoteBuilder.toString());
+                }
+                emoteBuilder = new StringBuilder();
+            }
+        }
+
+        return emotes;
+    }
+    public static List<String> getOrderedAvatars(String text, Predicate<String> emoteCheck) {
+        List<String> emotes = new LinkedList<>();
+
+        StringBuilder emoteBuilder = new StringBuilder();
+        boolean buildingEmote = false;
+
+        for (char c : text.toCharArray()) {
+            if (c == ':' && !buildingEmote) {
+                buildingEmote = true;
+            } else if ((c >= 'a' && 'z' >= c || c >= 'A' && 'Z' >= c || c >= '0' && '9' >= c || c == '-' || c == '_') && buildingEmote) {
                 emoteBuilder.append(c);
             } else if (c == ':' && emoteBuilder.length() > 0) {
                 buildingEmote = false;
