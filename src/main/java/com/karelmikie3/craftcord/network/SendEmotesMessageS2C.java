@@ -16,13 +16,12 @@
 
 package com.karelmikie3.craftcord.network;
 
-import com.karelmikie3.craftcord.util.ClientEmoteHelper;
+import com.karelmikie3.craftcord.CraftCord;
 import com.karelmikie3.craftcord.util.CommonEmoteHelper;
 import net.dv8tion.jda.core.entities.Emote;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -110,8 +109,11 @@ public class SendEmotesMessageS2C {
         ctx.get().enqueueWork(() -> {
             for (Map.Entry<String, String> entry : msg.nameURLMap.entrySet()) {
                 try {
-                    ClientEmoteHelper.addEmote(entry.getValue(), entry.getKey(), msg.usableEmotes.contains(entry.getKey()), msg.animatedEmotes.contains(entry.getKey()));
-                } catch (IOException e) {
+                    String emoteIDString = entry.getValue().toString().substring(34).replaceAll("\\.[^.]*$", "");
+                    long emoteID = Long.parseLong(emoteIDString);
+
+                    CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider.prepare(emoteID, entry.getKey(), msg.usableEmotes.contains(entry.getKey()), msg.animatedEmotes.contains(entry.getKey()));
+                } catch (NumberFormatException e) {
                     e.printStackTrace();
                 }
             }

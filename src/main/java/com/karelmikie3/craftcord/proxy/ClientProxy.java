@@ -16,19 +16,26 @@
 
 package com.karelmikie3.craftcord.proxy;
 
+import com.karelmikie3.craftcord.CraftCord;
+import com.karelmikie3.craftcord.discord.ClientDiscordHandler;
 import com.karelmikie3.craftcord.resources.EmoteResourcePack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.IReloadableResourceManager;
 
 public class ClientProxy implements IProxy {
     @Override
-    public void constructor() {
+    public void constructor(CraftCord mod) {
         final EmoteResourcePack resourcePack = new EmoteResourcePack();
         ((IReloadableResourceManager) Minecraft.getInstance().getResourceManager()).addReloadListener(resourcePack);
     }
 
     @Override
-    public void setup() {
+    public void setup(CraftCord mod) {
 
+    }
+
+    @Override
+    public Object getClientDiscordHandler() {
+        return new ClientDiscordHandler();
     }
 }

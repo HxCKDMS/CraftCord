@@ -20,6 +20,7 @@ import com.karelmikie3.craftcord.api.Globals;
 import com.karelmikie3.craftcord.api.presence.PresenceRegistry;
 import com.karelmikie3.craftcord.api.status.StatusRegistry;
 import com.karelmikie3.craftcord.config.Config;
+import com.karelmikie3.craftcord.discord.ClientDiscordHandler;
 import com.karelmikie3.craftcord.discord.DiscordHandler;
 import com.karelmikie3.craftcord.discord.MinecraftPresence;
 import com.karelmikie3.craftcord.discord.MinecraftStatus;
@@ -32,6 +33,8 @@ import com.karelmikie3.craftcord.proxy.ClientProxy;
 import com.karelmikie3.craftcord.proxy.IProxy;
 import com.karelmikie3.craftcord.proxy.ServerProxy;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -67,6 +70,8 @@ public class CraftCord {
 
     private static CraftCord INSTANCE;
     public final DiscordHandler DISCORD_HANDLER;
+    @OnlyIn(Dist.CLIENT)
+    public final ClientDiscordHandler CLIENT_DISCORD_HANDLER = (ClientDiscordHandler) proxy.getClientDiscordHandler();
     private static IProxy proxy = DistExecutor.runForDist(() -> ClientProxy::new, () -> ServerProxy::new);
 
     public static CraftCord getInstance() {
@@ -78,7 +83,7 @@ public class CraftCord {
         DISCORD_HANDLER = new DiscordHandler();
         Globals.PRESENCE_REGISTRY = new PresenceRegistry();
         Globals.STATUS_REGISTRY = new StatusRegistry();
-        proxy.constructor();
+        proxy.constructor(this);
 
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new EntityEvents());
@@ -92,7 +97,7 @@ public class CraftCord {
     }
 
     private void setup(final FMLCommonSetupEvent event) {
-        proxy.setup();
+        proxy.setup(this);
         LOGGER.info("Setting up.");
         int id = 0;
         NETWORK.messageBuilder(SendEmotesMessageS2C.class, id++)

@@ -14,25 +14,15 @@
  * limitations under the License.
  */
 
-package com.karelmikie3.craftcord.proxy;
+package com.karelmikie3.craftcord.discord;
 
-import com.karelmikie3.craftcord.CraftCord;
+import com.karelmikie3.craftcord.api.emotes.IEmoteProvider;
+import com.karelmikie3.craftcord.resources.CachedEmoteProvider;
+import com.karelmikie3.craftcord.resources.MemoryEmoteProvider;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class ServerProxy implements IProxy {
-    @Override
-    public void constructor(CraftCord mod) {
-
-    }
-
-    @Override
-    public void setup(CraftCord mod) {
-
-    }
-
-    @Override
-    public Object getClientDiscordHandler() {
-        //not called.
-        System.out.println("FUUUUUUUUUUUUUUCK");
-        return null;
-    }
+@OnlyIn(Dist.CLIENT)
+public class ClientDiscordHandler {
+    public final IEmoteProvider emoteProvider = new CachedEmoteProvider();
 }

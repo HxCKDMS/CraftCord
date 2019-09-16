@@ -17,8 +17,8 @@
 package com.karelmikie3.craftcord.patch;
 
 import com.google.common.collect.Lists;
+import com.karelmikie3.craftcord.CraftCord;
 import com.karelmikie3.craftcord.config.Config;
-import com.karelmikie3.craftcord.util.ClientEmoteHelper;
 import com.karelmikie3.craftcord.util.CommonEmoteHelper;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
@@ -34,23 +34,37 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedTransferQueue;
+import java.util.function.Predicate;
 
 @OnlyIn(Dist.CLIENT)
 @SuppressWarnings("unused")
 public final class NewChatGuiPatch {
     private static final Minecraft mc = Minecraft.getInstance();
 
+    private static Predicate<String> emoteTest = s -> {
+        try {
+            Long.parseLong(s);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    };
+
+    private static Predicate<String> emoteStrip = s -> CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider.exists(Long.parseLong(s));
+
     public static String addEmotes(String text, float y) {
         if (Config.emoteRenderingEnabled() && text != null && !text.isEmpty()) {
-            for (String emoteID : CommonEmoteHelper.getOrderedEmotes(text, s -> true)) {
-                if (ClientEmoteHelper.hasEmoteData(emoteID)) {
+            for (String emoteIDString : CommonEmoteHelper.getOrderedEmotes(text, emoteTest)) {
+                long emoteID = Long.parseLong(emoteIDString);
+
+                if (CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider.exists(emoteID)) {
                     String[] parts = text.split(":" + emoteID + ":", 2);
                     text = parts[0] + "   " + parts[1];
                     int x = mc.fontRenderer.getStringWidth(parts[0]);
 
                     renderEmote(x, y, new ResourceLocation("craftcordemotes", "textures/emotedata/" + emoteID));
                 } else {
-                    ClientEmoteHelper.requestEmote(emoteID);
+                    CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider.requestFromServer(emoteID);
                 }
             }
         }
@@ -58,7 +72,7 @@ public final class NewChatGuiPatch {
     }
 
     private static Queue<String> emotesToAdd = new LinkedTransferQueue<>();
-
+    //TODO: redo all of this without placeholders.
     public static ITextComponent removeEmotes(ITextComponent component) {
         if (!Config.emoteRenderingEnabled())
             return component;
@@ -72,9 +86,9 @@ public final class NewChatGuiPatch {
         for (ITextComponent iTextComponent : components) {
             String text = iTextComponent.getUnformattedComponentText();
 
-            emotesToAdd.addAll(CommonEmoteHelper.getOrderedEmotes(text, ClientEmoteHelper::hasEmoteData));
+            emotesToAdd.addAll(CommonEmoteHelper.getOrderedEmotes(text, emoteTest.and(emoteStrip)));
 
-            for (String emote : CommonEmoteHelper.getOrderedEmotes(text, ClientEmoteHelper::hasEmoteData)) {
+            for (String emote : CommonEmoteHelper.getOrderedEmotes(text, emoteTest.and(emoteStrip))) {
                 String[] parts = text.split(":" + emote + ":", 2);
                 text = parts[0] + "\u200ba" + parts[1];
             }

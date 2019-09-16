@@ -52,7 +52,7 @@ public final class GifUtil {
         return combined;
     }
 
-    public static ImageFrame[] readGIF(ImageReader reader) throws IOException {
+    public static ArrayList<ImageFrame> readGIF(ImageReader reader) throws IOException {
         ArrayList<ImageFrame> frames = new ArrayList<>(2);
 
         int width = -1;
@@ -116,7 +116,7 @@ public final class GifUtil {
             masterGraphics.drawImage(image, x, y, null);
 
             BufferedImage copy = new BufferedImage(master.getColorModel(), master.copyData(null), master.isAlphaPremultiplied(), null);
-            frames.add(new ImageFrame(copy, delay, disposal, Math.max(height, width)));
+            frames.add(new ImageFrame(delay, copy, disposal, height, width));
 
             if (disposal.equals("restoreToPrevious")) {
                 BufferedImage from = null;
@@ -136,7 +136,7 @@ public final class GifUtil {
         }
         reader.dispose();
 
-        return frames.toArray(new ImageFrame[0]);
+        return frames;
     }
 
     public static class ImageFrame {
@@ -144,12 +144,16 @@ public final class GifUtil {
         private final BufferedImage image;
         private final String disposal;
         private final int height;
+        private final int width;
+        private final int dim;
 
-        public ImageFrame(BufferedImage image, int delay, String disposal, int height) {
-            this.image = image;
+        public ImageFrame(int delay, BufferedImage image, String disposal, int height, int width) {
             this.delay = delay;
+            this.image = image;
             this.disposal = disposal;
             this.height = height;
+            this.width = width;
+            this.dim = Math.max(height, width);
         }
 
         public BufferedImage getImage() {
@@ -164,8 +168,16 @@ public final class GifUtil {
             return disposal;
         }
 
+        public int getDim() {
+            return dim;
+        }
+
         public int getHeight() {
             return height;
+        }
+
+        public int getWidth() {
+            return width;
         }
     }
 }
