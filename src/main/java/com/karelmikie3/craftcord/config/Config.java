@@ -142,6 +142,10 @@ public class Config {
                 .collect(Collectors.toList());
     }
 
+    public static String getCommandCharacter() {
+        return SERVER.DISCORD_COMMAND_CHARACTER.get();
+    }
+
     @OnlyIn(Dist.CLIENT)
     public static boolean emoteRenderingEnabled() {
         return CLIENT.ENABLE_EMOTE_RENDERING.get();
