@@ -129,7 +129,7 @@ public class MemoryEmoteProvider implements IEmoteProvider {
     }
 
     @Nullable
-    private byte[] processNormalEmote(byte[] emoteData) {
+    static byte[] processNormalEmote(byte[] emoteData) {
         try (ImageInputStream imageInput = ImageIO.createImageInputStream(new ByteArrayInputStream(emoteData));
              ByteArrayOutputStream output = new ByteArrayOutputStream();
              ImageOutputStream imageOutput = ImageIO.createImageOutputStream(output)) {
@@ -161,7 +161,7 @@ public class MemoryEmoteProvider implements IEmoteProvider {
     }
 
     @Nullable
-    private AnimatedEmoteData processAnimatedEmote(byte[] emoteData) {
+    static AnimatedEmoteData processAnimatedEmote(byte[] emoteData) {
         try (ImageInputStream imageInput = ImageIO.createImageInputStream(new ByteArrayInputStream(emoteData));
              ByteArrayOutputStream output = new ByteArrayOutputStream();
              ImageOutputStream imageOutput = ImageIO.createImageOutputStream(output)) {
@@ -200,7 +200,7 @@ public class MemoryEmoteProvider implements IEmoteProvider {
         }
     }
 
-    private BufferedImage stitchGifEmote(List<GifUtil.ImageFrame> frames, int dim) {
+    private static BufferedImage stitchGifEmote(List<GifUtil.ImageFrame> frames, int dim) {
         BufferedImage combined = new BufferedImage(dim, dim * frames.size(), BufferedImage.TYPE_INT_ARGB);
         Graphics graphics = combined.getGraphics();
 
@@ -213,7 +213,7 @@ public class MemoryEmoteProvider implements IEmoteProvider {
     }
 
     @Nullable
-    private byte[] download(URL url) {
+    static byte[] download(URL url) {
         try {
             URLConnection connection = url.openConnection();
             connection.setRequestProperty("User-Agent", "Minecraft CraftCord mod");
@@ -271,7 +271,7 @@ public class MemoryEmoteProvider implements IEmoteProvider {
         return Collections.unmodifiableSet(usable);
     }
 
-    private static class AnimatedEmoteData {
+    static class AnimatedEmoteData {
 
         private final byte[] emoteImage;
         private final int frameAmount;
