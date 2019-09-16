@@ -107,7 +107,7 @@ public class CachedEmoteProvider extends AbstractEmoteProvider {
     @Override
     public InputStream getInput(long emoteID, boolean metadata) {
         try {
-            return new FileInputStream(new File(metadata ? META_LOCATION : EMOTE_LOCATION, Long.toString(emoteID)));
+            return new FileInputStream(new File(metadata ? META_LOCATION : EMOTE_LOCATION, emoteID + (metadata ? ".mcmeta" : ".png")));
         } catch (FileNotFoundException e) {
             throw new IllegalArgumentException("No such emote exists.");
         }
