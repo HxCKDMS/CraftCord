@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 package com.karelmikie3.craftcord.resources;
 
 import javafx.util.Pair;

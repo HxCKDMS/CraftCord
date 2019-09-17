@@ -377,6 +377,10 @@ public class DiscordHandler {
                 String message = event.getMessage().getContentDisplay();
 //                System.out.println(event.getAuthor().getAvatarUrl() + " : " + event.getAuthor().getAvatarId());
 
+                /*if (event.getMessage()) {
+
+                }*/
+
                 if (message.startsWith(Config.getCommandCharacter())) {
                     String command = message.substring(Config.getCommandCharacter().length());
 
@@ -429,6 +433,17 @@ public class DiscordHandler {
                         }
                     }
                 }
+              /*  String attachmentUrl = "";
+                if (message.replaceAll(" ", "").trim().isEmpty()) {
+                    if (!event.getMessage().getAttachments().isEmpty()) {
+                        attachmentUrl = event.getMessage().getAttachments().get(0).getUrl();
+                        message += (event.getMessage().getAttachments().get(0).getFileName().matches("jpg|png|gif|svg|bmp") ? "[Image]" : "[Media]").replace("\\n", "");
+                    }
+                    if (!message.contains("http") && !message.contains("[Image]") && !message.contains("[Media]")) {
+                        System.out.println("Ignoring message : " + message + " - because it's believed to be empty.");
+                        return;
+                    }
+                }*/
 
                 ITextComponent messengerName;
 
@@ -441,6 +456,12 @@ public class DiscordHandler {
                 }
 
                 ITextComponent chatMessage = new TranslationTextComponent("chat.type.discordText", messengerName, message.contains("\n") ? message.replaceAll("```([a-zA-Z0-9]{0,10}[^\\\\])?", "") : message.replaceAll("`", ""));
+/*
+                if ((message.contains("[Image]") || message.contains("[Media]")) && !attachmentUrl.isEmpty()) {
+                    Style s = chatMessage.getStyle();
+                    s.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, NewChatGuiPatch.removeEmotes(new StringTextComponent(":436996394268753937:"))));
+                    chatMessage.setStyle(s);
+                }*/
 
                 //If mod language files load on server change to translation.
                 SERVER.sendMessage(new StringTextComponent(BLUE + "[" + DARK_BLUE + "DISCORD" + BLUE + "]" + RESET + "<").appendSibling(messengerName).appendText("> ").appendText(message));
