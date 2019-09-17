@@ -38,7 +38,15 @@ public class ClientChatEvents {
     @SubscribeEvent
     public void clientChatEvent(ClientChatEvent event) {
         String message = event.getMessage();
-
+/*
+    @SubscribeEvent
+    public void clientHoverEvent(HoverEvent event) {
+        if (event.getAction() == HoverEvent.Action.SHOW_TEXT) {
+            if (event.getValue().getFormattedText().contains(":")) {
+                event.getValue().appendSibling(NewChatGuiPatch.removeEmotes(event.getValue()));
+            }
+        }
+    }*/
         List<String> emotes = CommonEmoteHelper.getOrderedEmotes(message, CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider::exists);
         LinkedList<String> emoteIds = emotes.parallelStream()
                 .mapToLong(CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider::getEmoteID)
@@ -51,4 +59,5 @@ public class ClientChatEvents {
 
         event.setMessage(message);
     }
+
 }

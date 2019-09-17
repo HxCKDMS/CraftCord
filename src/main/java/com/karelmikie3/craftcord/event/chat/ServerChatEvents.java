@@ -26,6 +26,7 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.GameRules;
 import net.minecraftforge.event.ServerChatEvent;
@@ -52,6 +53,12 @@ public class ServerChatEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onServerChat(ServerChatEvent event) {
         if (Config.broadcastMinecraftChat()) {
+            if (DiscordHandler.users.containsKey(event.getPlayer())) {
+                String formtext = event.getComponent().getFormattedText().replace(event.getUsername(), DiscordHandler.users.get(event.getPlayer()));
+                ITextComponent comp = new StringTextComponent(formtext).setStyle(event.getComponent().getStyle());
+                event.setComponent(comp);
+            }
+
             String message = event.getMessage();
 
             List<String> emoteIDs = CommonEmoteHelper.getOrderedEmotes(message, StringUtils::isNumeric);
@@ -68,14 +75,18 @@ public class ServerChatEvents {
                 message = message.replaceFirst(":" + id + ":", emotes.removeFirst());
             }
 
+            String usernm = event.getUsername();
+            if (!DiscordHandler.users.isEmpty() && DiscordHandler.users.containsKey(event.getPlayer())) {
+                usernm = DiscordHandler.users.get(event.getPlayer());
+            }
+
             WebhookMessageBuilder builder = new WebhookMessageBuilder();
-            builder.setUsername(event.getUsername());
+            builder.setUsername(usernm);
             builder.setContent(DiscordHelper.stripFormattingForDiscord(message));
             builder.setAvatarUrl("https://crafatar.com/avatars/" + event.getPlayer().getGameProfile().getId().toString());
             handler.getWebhookClient().send(builder.build());
         }
     }
-
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerDeath(LivingDeathEvent event) {

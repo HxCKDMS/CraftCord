@@ -20,8 +20,10 @@ import com.google.gson.JsonObject;
 import com.karelmikie3.craftcord.api.presence.IMinecraftPresence;
 import com.karelmikie3.craftcord.api.status.IMinecraftStatus;
 import com.karelmikie3.craftcord.config.Config;
+import com.karelmikie3.craftcord.discord.Commands.CommandGetStat;
 import com.karelmikie3.craftcord.util.ColorHelper;
 import com.karelmikie3.craftcord.util.CommonEmoteHelper;
+import com.mojang.realmsclient.gui.ChatFormatting;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
@@ -29,10 +31,14 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageUpdateEvent;
+import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.webhook.WebhookClient;
 import net.dv8tion.jda.webhook.WebhookClientBuilder;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.play.server.SChatPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.JSONUtils;
@@ -310,7 +316,13 @@ public class DiscordHandler {
         TextChannel channel = getBot().getTextChannelById(Config.getStatusChannelID());
         if (!channel.canTalk()) {
             LOGGER.warn("Can't talk in designated status channel.");
-            //TODO: notify OPs in game.
+            for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
+                System.out.println(player.getScoreboardName());
+                System.out.println(Arrays.toString(server.getPlayerList().getOppedPlayerNames()));
+                if (Arrays.asList(server.getPlayerList().getOppedPlayerNames()).contains(player.getScoreboardName())) {
+                    player.sendMessage(new StringTextComponent("You are an op"));
+                }
+            }
             return;
         }
         if (Config.getStatusMessageID() == 0L) {
@@ -342,9 +354,18 @@ public class DiscordHandler {
 
     }
 
+    private static final HashMap<String, ChatFormatting> formats = new HashMap<>();
+    static {
+        formats.put("__", ChatFormatting.UNDERLINE);
+        formats.put("||", ChatFormatting.OBFUSCATED);
+        formats.put("**", ChatFormatting.BOLD);
+        formats.put("~~", ChatFormatting.STRIKETHROUGH);
+        formats.put("_", ChatFormatting.ITALIC);
+        formats.put("*", ChatFormatting.ITALIC);
+    }
+    public static HashMap<PlayerEntity, String> users = new HashMap<>();
     private class DiscordEvents extends ListenerAdapter {
         private final MinecraftServer SERVER = ServerLifecycleHooks.getCurrentServer();
-
         @Override
         public void onMessageReceived(MessageReceivedEvent event) {
             if (!Config.broadcastDiscordChat())
@@ -354,11 +375,75 @@ public class DiscordHandler {
                     (!Config.sameChannel() || event.getChannel().getIdLong() == channelID)) {
 
                 String message = event.getMessage().getContentDisplay();
+//                System.out.println(event.getAuthor().getAvatarUrl() + " : " + event.getAuthor().getAvatarId());
+
+                /*if (event.getMessage()) {
+
+                }*/
+
+                if (message.startsWith(Config.getCommandCharacter())) {
+                    String command = message.substring(Config.getCommandCharacter().length());
+
+                    if (command.startsWith("getStat")) {
+                        String[] args = command.replaceAll("getStats?", "").trim().split(" ");
+                        event.getChannel().sendMessage(CommandGetStat.execute(SERVER, args)).queue();
+                    } else if (command.startsWith("bind")) {
+                        String[] args = command.replace("bind", "").trim().split(" ");
+                        users.put(SERVER.getPlayerList().getPlayerByUsername(args[0]), event.getMember().getNickname());
+                    }
+                }
 
                 for (Emote emote : event.getMessage().getEmotes()) {
                     CommonEmoteHelper.addToLocalEmoteCache(emote);
                     message = message.replace(":" + emote.getName() + ":", ":" + emote.getId() + ":");
                 }
+
+                while (message.contains("||") || message.contains("__") || message.contains("~~") || message.contains("*") || message.contains("_")) {
+                    String tempmessage = message.replaceFirst("__", "\u00a7n");
+                    if (tempmessage.contains("__")) {
+                        message = tempmessage.replaceFirst("__", "\u00a7r");
+                    }
+
+                    tempmessage = message.replaceFirst("\\|\\|", "\u00a7k");
+                    if (tempmessage.contains("||")) {
+                        message = tempmessage.replaceFirst("\\|\\|", "\u00a7r");
+                    }
+
+                    tempmessage = message.replaceFirst("\\*\\*", "\u00a7l");
+                    if (tempmessage.contains("**")) {
+                        message = tempmessage.replaceFirst("\\*\\*", "\u00a7r");
+                    }
+
+                    tempmessage = message.replaceFirst("~~", "\u00a7m");
+                    if (tempmessage.contains("~~")) {
+                        message = tempmessage.replaceFirst("~~", "\u00a7r");
+                    }
+
+                    if (message.contains("*")) {
+                        tempmessage = message.replaceFirst("\\*", "\u00a7o");
+                        if (tempmessage.contains("*")) {
+                            message = tempmessage.replaceFirst("\\*", "\u00a7r");
+                        }
+                    }
+
+                    if (message.contains("_")) {
+                        tempmessage = message.replaceFirst("_", "\u00a7o");
+                        if (tempmessage.contains("_")) {
+                            message = tempmessage.replaceFirst("_", "\u00a7r");
+                        }
+                    }
+                }
+              /*  String attachmentUrl = "";
+                if (message.replaceAll(" ", "").trim().isEmpty()) {
+                    if (!event.getMessage().getAttachments().isEmpty()) {
+                        attachmentUrl = event.getMessage().getAttachments().get(0).getUrl();
+                        message += (event.getMessage().getAttachments().get(0).getFileName().matches("jpg|png|gif|svg|bmp") ? "[Image]" : "[Media]").replace("\\n", "");
+                    }
+                    if (!message.contains("http") && !message.contains("[Image]") && !message.contains("[Media]")) {
+                        System.out.println("Ignoring message : " + message + " - because it's believed to be empty.");
+                        return;
+                    }
+                }*/
 
                 ITextComponent messengerName;
 
@@ -370,11 +455,30 @@ public class DiscordHandler {
                             .applyTextStyle(WHITE);
                 }
 
-                ITextComponent chatMessage = new TranslationTextComponent("chat.type.discordText", messengerName, message);
+                ITextComponent chatMessage = new TranslationTextComponent("chat.type.discordText", messengerName, message.contains("\n") ? message.replaceAll("```([a-zA-Z0-9]{0,10}[^\\\\])?", "") : message.replaceAll("`", ""));
+/*
+                if ((message.contains("[Image]") || message.contains("[Media]")) && !attachmentUrl.isEmpty()) {
+                    Style s = chatMessage.getStyle();
+                    s.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, NewChatGuiPatch.removeEmotes(new StringTextComponent(":436996394268753937:"))));
+                    chatMessage.setStyle(s);
+                }*/
 
                 //If mod language files load on server change to translation.
                 SERVER.sendMessage(new StringTextComponent(BLUE + "[" + DARK_BLUE + "DISCORD" + BLUE + "]" + RESET + "<").appendSibling(messengerName).appendText("> ").appendText(message));
                 SERVER.getPlayerList().sendPacketToAllPlayers(new SChatPacket(chatMessage, ChatType.CHAT));
+            }
+        }
+
+        @Override
+        public void onMessageUpdate(MessageUpdateEvent event) {
+
+        }
+
+        @Override
+        public void onMessageReactionAdd(MessageReactionAddEvent event) {
+            if (event.getReactionEmote() != null && event.getReactionEmote().getEmote() != null) {
+                SERVER.sendMessage(new StringTextComponent(":" + event.getReactionEmote().getId() + ":").appendSibling(new StringTextComponent("")).appendText(""));
+                SERVER.getPlayerList().sendPacketToAllPlayers(new SChatPacket(new StringTextComponent(":" + event.getReactionEmote().getEmote().getId() + ":").appendSibling(new StringTextComponent("")).appendText(""), ChatType.CHAT));
             }
         }
 
