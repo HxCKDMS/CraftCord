@@ -96,6 +96,7 @@ public class CommandGetStat {
             case "ravager": return EntityType.RAVAGER;
             case "slime" : return EntityType.SLIME;
             case "snowgolem": return EntityType.SNOW_GOLEM;
+            case "creeper": return EntityType.CREEPER;
             default: return EntityType.PLAYER;
         }
     }

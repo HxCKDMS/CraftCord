@@ -50,6 +50,7 @@ class ServerModConfig {
     final ForgeConfigSpec.BooleanValue BROADCAST_SERVER_START_STOP;
     final ForgeConfigSpec.BooleanValue BROADCAST_PLAYER_JOIN_LEAVE;
     final ForgeConfigSpec.BooleanValue BROADCAST_CRASH;
+    final ForgeConfigSpec.BooleanValue BROADCAST_GAMEMODE_IN_NAME;
     final ForgeConfigSpec.ConfigValue<String> DISCORD_COMMAND_CHARACTER;
 
     final ForgeConfigSpec.BooleanValue DISPLAY_PRESENCE;
@@ -126,6 +127,11 @@ class ServerModConfig {
                 .comment("Broadcast to Discord a crash occurs.")
                 .translation("craftcord.configgui.broadcastCrash")
                 .define("Broadcast crash", FMLEnvironment.dist == Dist.DEDICATED_SERVER);
+
+        this.BROADCAST_GAMEMODE_IN_NAME = builder
+                .comment("Broadcast to Discord a users gamemode in their name when they speak.")
+                .translation("craftcord.configgui.broadcastGamemode")
+                .define("Broadcast Gamemode", FMLEnvironment.dist == Dist.DEDICATED_SERVER);
 
         this.DISPLAY_PRESENCE = builder
                 .comment("Enable displaying this server's presence using the bot.")

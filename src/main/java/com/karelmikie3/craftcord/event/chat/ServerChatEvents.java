@@ -79,6 +79,22 @@ public class ServerChatEvents {
             if (!DiscordHandler.users.isEmpty() && DiscordHandler.users.containsKey(event.getPlayer())) {
                 usernm = DiscordHandler.users.get(event.getPlayer());
             }
+            if (Config.getGamemodeDisplay()) {
+                String gamemode = "";
+                switch (event.getPlayer().interactionManager.getGameType().getID()) {
+                    case 0: gamemode = "Survival";
+                    break;
+                    case 1: gamemode = "Creative";
+                    break;
+                    case 2: gamemode = "Adventure";
+                    break;
+                    case 3: gamemode = "Spectator";
+                    break;
+                    case -1: gamemode = "Unknown";
+                    break;
+                }
+                usernm = "[" + gamemode + "] " + usernm;
+            }
 
             WebhookMessageBuilder builder = new WebhookMessageBuilder();
             builder.setUsername(usernm);

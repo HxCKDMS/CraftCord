@@ -42,10 +42,8 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.play.server.SChatPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.JSONUtils;
-import net.minecraft.util.text.ChatType;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.text.*;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -433,7 +431,7 @@ public class DiscordHandler {
                         }
                     }
                 }
-              /*  String attachmentUrl = "";
+                String attachmentUrl = "";
                 if (message.replaceAll(" ", "").trim().isEmpty()) {
                     if (!event.getMessage().getAttachments().isEmpty()) {
                         attachmentUrl = event.getMessage().getAttachments().get(0).getUrl();
@@ -443,7 +441,7 @@ public class DiscordHandler {
                         System.out.println("Ignoring message : " + message + " - because it's believed to be empty.");
                         return;
                     }
-                }*/
+                }
 
                 ITextComponent messengerName;
 
@@ -456,12 +454,11 @@ public class DiscordHandler {
                 }
 
                 ITextComponent chatMessage = new TranslationTextComponent("chat.type.discordText", messengerName, message.contains("\n") ? message.replaceAll("```([a-zA-Z0-9]{0,10}[^\\\\])?", "") : message.replaceAll("`", ""));
-/*
                 if ((message.contains("[Image]") || message.contains("[Media]")) && !attachmentUrl.isEmpty()) {
                     Style s = chatMessage.getStyle();
-                    s.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, NewChatGuiPatch.removeEmotes(new StringTextComponent(":436996394268753937:"))));
+                    s.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("TODO Make this Display Images @KarelMikie3")));
                     chatMessage.setStyle(s);
-                }*/
+                }
 
                 //If mod language files load on server change to translation.
                 SERVER.sendMessage(new StringTextComponent(BLUE + "[" + DARK_BLUE + "DISCORD" + BLUE + "]" + RESET + "<").appendSibling(messengerName).appendText("> ").appendText(message));
@@ -476,9 +473,13 @@ public class DiscordHandler {
 
         @Override
         public void onMessageReactionAdd(MessageReactionAddEvent event) {
-            if (event.getReactionEmote() != null && event.getReactionEmote().getEmote() != null) {
-                SERVER.sendMessage(new StringTextComponent(":" + event.getReactionEmote().getId() + ":").appendSibling(new StringTextComponent("")).appendText(""));
-                SERVER.getPlayerList().sendPacketToAllPlayers(new SChatPacket(new StringTextComponent(":" + event.getReactionEmote().getEmote().getId() + ":").appendSibling(new StringTextComponent("")).appendText(""), ChatType.CHAT));
+            if (!Config.sameChannel() || event.getChannel().getIdLong() == channelID) {
+                System.out.println(event.getReaction().toString());
+
+                if (event.getReactionEmote() != null && event.getReactionEmote().getEmote() != null) {
+                    SERVER.sendMessage(new StringTextComponent(":" + event.getReactionEmote().getId() + ":").appendSibling(new StringTextComponent("")).appendText(""));
+                    SERVER.getPlayerList().sendPacketToAllPlayers(new SChatPacket(new StringTextComponent(":" + event.getReactionEmote().getEmote().getId() + ":").appendSibling(new StringTextComponent("")).appendText(""), ChatType.CHAT));
+                }
             }
         }
 

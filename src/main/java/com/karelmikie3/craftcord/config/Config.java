@@ -146,6 +146,10 @@ public class Config {
         return SERVER.DISCORD_COMMAND_CHARACTER.get();
     }
 
+    public static boolean getGamemodeDisplay() {
+        return SERVER.BROADCAST_GAMEMODE_IN_NAME.get();
+    }
+
     @OnlyIn(Dist.CLIENT)
     public static boolean emoteRenderingEnabled() {
         return CLIENT.ENABLE_EMOTE_RENDERING.get();
