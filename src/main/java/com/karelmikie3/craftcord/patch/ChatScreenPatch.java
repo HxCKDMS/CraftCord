@@ -51,7 +51,7 @@ public final class ChatScreenPatch {
         }
 
         if (buildingEmote) {
-            instance.pendingSuggestions = ISuggestionProvider.suggest(CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider.usableEmotes().stream().map(emote -> ":" + emote + ":"), new SuggestionsBuilder(s, currentColonIndex));
+            instance.pendingSuggestions = ISuggestionProvider.suggest(CraftCord.getInstance().getClientDiscordHandler().emoteProvider.usableEmotes().stream().map(emote -> ":" + emote + ":"), new SuggestionsBuilder(s, currentColonIndex));
 
             instance.pendingSuggestions.thenRun(() -> {
                 if (instance.pendingSuggestions.isDone()) {

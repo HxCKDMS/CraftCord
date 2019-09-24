@@ -17,6 +17,7 @@
 package com.karelmikie3.craftcord.discord;
 
 import com.karelmikie3.craftcord.api.emotes.IEmoteProvider;
+import com.karelmikie3.craftcord.config.Config;
 import com.karelmikie3.craftcord.resources.CachedEmoteProvider;
 import com.karelmikie3.craftcord.resources.MemoryEmoteProvider;
 import net.minecraftforge.api.distmarker.Dist;
@@ -24,5 +25,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientDiscordHandler {
-    public final IEmoteProvider emoteProvider = new CachedEmoteProvider();
+    public final IEmoteProvider emoteProvider = Config.useCachedProvider() ?
+            new CachedEmoteProvider() :
+            new MemoryEmoteProvider();
 }

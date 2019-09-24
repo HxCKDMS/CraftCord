@@ -48,10 +48,10 @@ public class EmoteResourcePack extends ResourcePack implements ISelectiveResourc
         long emoteID = Long.parseLong(emoteIDString);
 
         if (resourcePath.endsWith(".mcmeta"))
-            return CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider.getInput(emoteID, true);
+            return CraftCord.getInstance().getClientDiscordHandler().emoteProvider.getInput(emoteID, true);
 
 
-        return CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider.getInput(emoteID, false);
+        return CraftCord.getInstance().getClientDiscordHandler().emoteProvider.getInput(emoteID, false);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class EmoteResourcePack extends ResourcePack implements ISelectiveResourc
         String emoteIDString = resourcePath.replace("assets/craftcordemotes/textures/emotedata/", "").replaceAll("\\.[^.]*$", "");
         long emoteID = Long.parseLong(emoteIDString);
 
-        return CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider.exists(emoteID);
+        return CraftCord.getInstance().getClientDiscordHandler().emoteProvider.exists(emoteID);
     }
 
     @Override

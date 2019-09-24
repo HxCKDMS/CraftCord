@@ -112,7 +112,7 @@ public class SendEmotesMessageS2C {
                     String emoteIDString = entry.getValue().toString().substring(34).replaceAll("\\.[^.]*$", "");
                     long emoteID = Long.parseLong(emoteIDString);
 
-                    CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider.prepare(emoteID, entry.getKey(), msg.usableEmotes.contains(entry.getKey()), msg.animatedEmotes.contains(entry.getKey()));
+                    CraftCord.getInstance().getClientDiscordHandler().emoteProvider.prepare(emoteID, entry.getKey(), msg.usableEmotes.contains(entry.getKey()), msg.animatedEmotes.contains(entry.getKey()));
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
                 }

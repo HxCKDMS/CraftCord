@@ -53,7 +53,6 @@ import org.apache.logging.log4j.Logger;
 
 import static com.karelmikie3.craftcord.CraftCord.MOD_ID;
 
-//TODO: keep emotes on disk instead of in memory and add option to just use memory.
 //TODO: replace '[DISCORD]' in chat with the Discord logo.
 @Mod(MOD_ID)
 public class CraftCord {
@@ -70,8 +69,7 @@ public class CraftCord {
 
     private static CraftCord INSTANCE;
     public final DiscordHandler DISCORD_HANDLER;
-    @OnlyIn(Dist.CLIENT)
-    public final ClientDiscordHandler CLIENT_DISCORD_HANDLER = (ClientDiscordHandler) proxy.getClientDiscordHandler();
+    private ClientDiscordHandler CLIENT_DISCORD_HANDLER;
     private static IProxy proxy = DistExecutor.runForDist(() -> ClientProxy::new, () -> ServerProxy::new);
 
     public static CraftCord getInstance() {
@@ -98,6 +96,8 @@ public class CraftCord {
 
     private void setup(final FMLCommonSetupEvent event) {
         proxy.setup(this);
+        CLIENT_DISCORD_HANDLER = (ClientDiscordHandler) proxy.getClientDiscordHandler();
+
         LOGGER.info("Setting up.");
         int id = 0;
         NETWORK.messageBuilder(SendEmotesMessageS2C.class, id++)
@@ -137,5 +137,10 @@ public class CraftCord {
     public void onServerStopping(FMLServerStoppingEvent event) {
         MinecraftForge.EVENT_BUS.unregister(serverChatEvents);
         serverChatEvents = null;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public ClientDiscordHandler getClientDiscordHandler() {
+        return CLIENT_DISCORD_HANDLER;
     }
 }

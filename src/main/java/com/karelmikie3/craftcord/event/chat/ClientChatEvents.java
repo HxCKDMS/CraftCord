@@ -47,9 +47,9 @@ public class ClientChatEvents {
             }
         }
     }*/
-        List<String> emotes = CommonEmoteHelper.getOrderedEmotes(message, CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider::exists);
+        List<String> emotes = CommonEmoteHelper.getOrderedEmotes(message, CraftCord.getInstance().getClientDiscordHandler().emoteProvider::exists);
         LinkedList<String> emoteIds = emotes.parallelStream()
-                .mapToLong(CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider::getEmoteID)
+                .mapToLong(CraftCord.getInstance().getClientDiscordHandler().emoteProvider::getEmoteID)
                 .mapToObj(Long::toString)
                 .collect(Collectors.toCollection(LinkedList::new));
 

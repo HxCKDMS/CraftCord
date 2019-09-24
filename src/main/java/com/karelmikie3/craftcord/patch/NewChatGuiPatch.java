@@ -50,21 +50,21 @@ public final class NewChatGuiPatch {
         }
     };
 
-    private static Predicate<String> emoteStrip = s -> CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider.exists(Long.parseLong(s));
+    private static Predicate<String> emoteStrip = s -> CraftCord.getInstance().getClientDiscordHandler().emoteProvider.exists(Long.parseLong(s));
 
     public static String addEmotes(String text, float y) {
         if (Config.emoteRenderingEnabled() && text != null && !text.isEmpty()) {
             for (String emoteIDString : CommonEmoteHelper.getOrderedEmotes(text, emoteTest)) {
                 long emoteID = Long.parseLong(emoteIDString);
 
-                if (CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider.exists(emoteID)) {
+                if (CraftCord.getInstance().getClientDiscordHandler().emoteProvider.exists(emoteID)) {
                     String[] parts = text.split(":" + emoteID + ":", 2);
                     text = parts[0] + "   " + parts[1];
                     int x = mc.fontRenderer.getStringWidth(parts[0]);
 
                     renderEmote(x, y, new ResourceLocation("craftcordemotes", "textures/emotedata/" + emoteID));
                 } else {
-                    CraftCord.getInstance().CLIENT_DISCORD_HANDLER.emoteProvider.requestFromServer(emoteID);
+                    CraftCord.getInstance().getClientDiscordHandler().emoteProvider.requestFromServer(emoteID);
                 }
             }
         }

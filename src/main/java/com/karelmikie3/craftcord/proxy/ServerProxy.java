@@ -31,8 +31,6 @@ public class ServerProxy implements IProxy {
 
     @Override
     public Object getClientDiscordHandler() {
-        //not called.
-        System.out.println("FUUUUUUUUUUUUUUCK");
         return null;
     }
 }

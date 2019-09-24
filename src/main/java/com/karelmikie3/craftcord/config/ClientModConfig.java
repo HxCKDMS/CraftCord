@@ -33,6 +33,7 @@ class ClientModConfig {
 
     final ForgeConfigSpec.BooleanValue ENABLE_EMOTE_RENDERING;
     final ForgeConfigSpec.BooleanValue ENABLE_EMOTE_SUGGESTIONS;
+    final ForgeConfigSpec.BooleanValue USE_CACHED_EMOTE_PROVIDER;
 
     private ClientModConfig(ForgeConfigSpec.Builder builder) {
         builder.comment("Client settings")
@@ -47,6 +48,11 @@ class ClientModConfig {
                 .comment("Enables emote suggestions in chat if you start typing ':'.")
                 .translation("craftcord.configgui.enableEmoteSuggestions")
                 .define("Enable emote suggestions", true);
+
+        this.USE_CACHED_EMOTE_PROVIDER = builder
+                .comment("Cache the rendered emotes.", "If disabled emotes will be stored in memory and will be downloaded every session")
+                .translation("craftcord.configgui.useCachedProvider")
+                .define("Use cached emote provider", true);
 
         builder.pop();
 

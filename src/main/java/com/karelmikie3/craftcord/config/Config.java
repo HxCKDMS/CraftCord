@@ -159,4 +159,9 @@ public class Config {
     public static boolean emoteSuggestionsEnabled() {
         return CLIENT.ENABLE_EMOTE_SUGGESTIONS.get();
     }
+
+    @OnlyIn(Dist.CLIENT)
+    public static boolean useCachedProvider() {
+        return CLIENT.USE_CACHED_EMOTE_PROVIDER.get();
+    }
 }
