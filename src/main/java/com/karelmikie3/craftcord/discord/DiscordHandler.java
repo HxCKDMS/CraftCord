@@ -352,14 +352,14 @@ public class DiscordHandler {
 
     }
 
-    private static final HashMap<String, ChatFormatting> formats = new HashMap<>();
+    private static final HashMap<String, TextFormatting> formats = new HashMap<>();
     static {
-        formats.put("__", ChatFormatting.UNDERLINE);
-        formats.put("||", ChatFormatting.OBFUSCATED);
-        formats.put("**", ChatFormatting.BOLD);
-        formats.put("~~", ChatFormatting.STRIKETHROUGH);
-        formats.put("_", ChatFormatting.ITALIC);
-        formats.put("*", ChatFormatting.ITALIC);
+        formats.put("__", TextFormatting.UNDERLINE);
+        formats.put("||", TextFormatting.OBFUSCATED);
+        formats.put("**", TextFormatting.BOLD);
+        formats.put("~~", TextFormatting.STRIKETHROUGH);
+        formats.put("_", TextFormatting.ITALIC);
+        formats.put("*", TextFormatting.ITALIC);
     }
     public static HashMap<PlayerEntity, String> users = new HashMap<>();
     private class DiscordEvents extends ListenerAdapter {
