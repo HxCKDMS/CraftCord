@@ -23,7 +23,6 @@ import com.karelmikie3.craftcord.config.Config;
 import com.karelmikie3.craftcord.discord.Commands.CommandGetStat;
 import com.karelmikie3.craftcord.util.ColorHelper;
 import com.karelmikie3.craftcord.util.CommonEmoteHelper;
-import com.mojang.realmsclient.gui.ChatFormatting;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
@@ -361,6 +360,8 @@ public class DiscordHandler {
         formats.put("_", TextFormatting.ITALIC);
         formats.put("*", TextFormatting.ITALIC);
     }
+
+    //TODO: ban Keldon for causing a memory leak (and fix the memory leak)
     public static HashMap<PlayerEntity, String> users = new HashMap<>();
     private class DiscordEvents extends ListenerAdapter {
         private final MinecraftServer SERVER = ServerLifecycleHooks.getCurrentServer();

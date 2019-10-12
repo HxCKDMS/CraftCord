@@ -30,7 +30,11 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedTransferQueue;
@@ -40,21 +44,15 @@ import java.util.function.Predicate;
 @SuppressWarnings("unused")
 public final class NewChatGuiPatch {
     private static final Minecraft mc = Minecraft.getInstance();
+    private static final Logger LOGGER = LogManager.getLogger();
 
-    private static Predicate<String> emoteTest = s -> {
-        try {
-            Long.parseLong(s);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    };
+    private static Predicate<String> isNumeric = StringUtils::isNumeric;
 
-    private static Predicate<String> emoteStrip = s -> CraftCord.getInstance().getClientDiscordHandler().emoteProvider.exists(Long.parseLong(s));
+    private static Predicate<String> exists = s -> CraftCord.getInstance().getClientDiscordHandler().emoteProvider.exists(Long.parseLong(s));
 
     public static String addEmotes(String text, float y) {
         if (Config.emoteRenderingEnabled() && text != null && !text.isEmpty()) {
-            for (String emoteIDString : CommonEmoteHelper.getOrderedEmotes(text, emoteTest)) {
+            for (String emoteIDString : CommonEmoteHelper.getOrderedEmotes(text, isNumeric)) {
                 long emoteID = Long.parseLong(emoteIDString);
 
                 if (CraftCord.getInstance().getClientDiscordHandler().emoteProvider.exists(emoteID)) {
@@ -72,7 +70,7 @@ public final class NewChatGuiPatch {
     }
 
     private static Queue<String> emotesToAdd = new LinkedTransferQueue<>();
-    //TODO: redo all of this without placeholders.
+    //used section sign + w since w is not a color/style code and section sign is not typeable.
     public static ITextComponent removeEmotes(ITextComponent component) {
         if (!Config.emoteRenderingEnabled())
             return component;
@@ -83,14 +81,15 @@ public final class NewChatGuiPatch {
 
         List<ITextComponent> components = Lists.newArrayList(component);
 
+
         for (ITextComponent iTextComponent : components) {
             String text = iTextComponent.getUnformattedComponentText();
 
-            emotesToAdd.addAll(CommonEmoteHelper.getOrderedEmotes(text, emoteTest.and(emoteStrip)));
+            emotesToAdd.addAll(CommonEmoteHelper.getOrderedEmotes(text, isNumeric.and(exists)));
 
-            for (String emote : CommonEmoteHelper.getOrderedEmotes(text, emoteTest.and(emoteStrip))) {
+            for (String emote : CommonEmoteHelper.getOrderedEmotes(text, isNumeric.and(exists))) {
                 String[] parts = text.split(":" + emote + ":", 2);
-                text = parts[0] + "\u200ba" + parts[1];
+                text = parts[0] + "\u00a7w" + parts[1];
             }
 
             newComponent.appendSibling(new StringTextComponent(text).setStyle(iTextComponent.getStyle().createDeepCopy()));
@@ -103,7 +102,7 @@ public final class NewChatGuiPatch {
         if (!Config.emoteRenderingEnabled() || emotesToAdd.isEmpty())
             return components;
 
-        List<ITextComponent> list = Lists.newArrayList();
+        List<ITextComponent> list = new ArrayList<>();
 
         String addToNext = "";
         for (ITextComponent outerComponent : components) {
@@ -112,13 +111,13 @@ public final class NewChatGuiPatch {
                 String text = addToNext + component.getUnformattedComponentText();
                 addToNext = "";
 
-                while (text.contains("\u200ba") && emotesToAdd.peek() != null) {
-                    text = text.replaceFirst("\\u200ba", ":" + emotesToAdd.poll() + ":");
+                while (text.contains("\u00a7w") && emotesToAdd.peek() != null) {
+                    text = text.replaceFirst("\\u00a7w", ":" + emotesToAdd.poll() + ":");
                 }
 
-                if (text.endsWith("\u200b")) {
+                if (text.endsWith("\u00a7")) {
                     text = text.substring(0, text.length() - 1);
-                    addToNext = "\u200b";
+                    addToNext = "\u00a7";
                 }
 
                 newComponent.appendSibling(new StringTextComponent(text).setStyle(component.getStyle().createDeepCopy()));
@@ -128,7 +127,10 @@ public final class NewChatGuiPatch {
         }
 
         if (list.size() != components.size()) {
-            System.err.println("MAJOR PROBLEM!");
+            LOGGER.fatal("Initial text component count doesn't match post. Got: {}, expected {}", list.size(), components.size());
+            LOGGER.fatal("returning original textcomponents");
+            emotesToAdd.clear();
+            return components;
         }
 
         emotesToAdd.clear();
@@ -148,8 +150,6 @@ public final class NewChatGuiPatch {
 
             builder.begin(7, DefaultVertexFormats.POSITION_TEX);
             mc.getTextureManager().bindTexture(emote);
-            //mc.getTextureManager().loadTickableTexture(emote, new AtlasTexture("test"));
-            //mc.getTextureManager().loadTickableTexture(emote, new EmoteTexture(emote));
             builder.pos(0, 128, 0).tex(0, 1).endVertex();
             builder.pos(128, 128, 0).tex(1, 1).endVertex();
             builder.pos(128, 0, 0).tex(1, 0).endVertex();

@@ -29,29 +29,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public final class GifUtil {
-    public static BufferedImage merge(BufferedImage image1, BufferedImage image2) {
-        if (image1 == null) {
-            int dim = Math.max(image2.getHeight(), image2.getWidth());
-            BufferedImage resize = new BufferedImage(dim, dim, BufferedImage.TYPE_INT_ARGB);
-
-            Graphics g = resize.getGraphics();
-            g.drawImage(image2, 0, dim - image2.getHeight(), null);
-
-            return resize;
-        }
-
-        int w = Math.max(image1.getWidth(), image2.getWidth());
-        int h = image1.getHeight() + w;
-
-        BufferedImage combined = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-
-        Graphics g = combined.getGraphics();
-        g.drawImage(image1, 0, 0, null);
-        g.drawImage(image2, 0, image1.getHeight() + w - image2.getHeight(), null);
-
-        return combined;
-    }
-
     public static ArrayList<ImageFrame> readGIF(ImageReader reader) throws IOException {
         ArrayList<ImageFrame> frames = new ArrayList<>(2);
 
