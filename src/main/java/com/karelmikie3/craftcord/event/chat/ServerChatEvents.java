@@ -28,6 +28,7 @@ import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.GameRules;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -40,7 +41,6 @@ import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 import org.codehaus.plexus.util.StringUtils;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class ServerChatEvents {
@@ -52,19 +52,79 @@ public class ServerChatEvents {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onServerChat(ServerChatEvent event) {
-        if (Config.broadcastMinecraftChat()) {
-            if (DiscordHandler.users.containsKey(event.getPlayer())) {
-                String formtext = event.getComponent().getFormattedText().replace(event.getUsername(), DiscordHandler.users.get(event.getPlayer()));
-                ITextComponent comp = new StringTextComponent(formtext).setStyle(event.getComponent().getStyle());
-                event.setComponent(comp);
-            }
+        String message = event.getMessage();
 
-            String message = event.getMessage();
+        LinkedList<String> emoteIDs = new LinkedList<>(CommonEmoteHelper.getOrderedEmotes(message, StringUtils::isNumeric));
+        emoteIDs = emoteIDs.parallelStream()
+                .filter(emoteID -> handler.getBot().getEmoteById(emoteID) != null)
+                .collect(Collectors.toCollection(LinkedList::new));
 
-            List<String> emoteIDs = CommonEmoteHelper.getOrderedEmotes(message, StringUtils::isNumeric);
+        TranslationTextComponent component = (TranslationTextComponent) event.getComponent();
+
+        Object[] args = component.getFormatArgs();
+
+        for (int i = 0; i < args.length; i++) {
+            if (!(args[i] instanceof ITextComponent))
+                continue;
+
+            ITextComponent argComponent = (ITextComponent) args[i];
+
+            LinkedList<String> emotes = new LinkedList<>(CommonEmoteHelper.getOrderedEmotes(argComponent.getFormattedText(), StringUtils::isNumeric));
             emoteIDs = emoteIDs.parallelStream()
                     .filter(emoteID -> handler.getBot().getEmoteById(emoteID) != null)
                     .collect(Collectors.toCollection(LinkedList::new));
+
+            ITextComponent newComponent = null;
+            LinkedList<ITextComponent> siblings = new LinkedList<>(argComponent.getSiblings());
+            String lastPart = argComponent.getUnformattedComponentText();
+
+            for (String emoteID : emotes) {
+                String[] parts = lastPart.split(":" + emoteID + ":", 2);
+
+                if (!parts[0].isEmpty() && newComponent != null)
+                    newComponent.appendText(parts[0]);
+                else if (!parts[0].isEmpty()) {
+                    newComponent = new StringTextComponent(parts[0]);
+                }
+
+                ITextComponent emoteComponent = new StringTextComponent("  ");
+                emoteComponent.applyTextStyle(style -> style.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent(emoteID))));
+                if (newComponent != null) {
+                    newComponent.appendSibling(emoteComponent);
+                } else {
+                    newComponent = emoteComponent;
+                }
+
+                lastPart = parts[1];
+            }
+
+            if (!lastPart.isEmpty())
+                component.appendText(lastPart);
+
+            if (newComponent == null) {
+                newComponent = argComponent;
+            } else if (!lastPart.isEmpty()) {
+                newComponent.appendText(lastPart);
+
+                if (!siblings.isEmpty())
+                    siblings.forEach(newComponent::appendSibling);
+            }
+
+            args[i] = newComponent;
+        }
+
+        ITextComponent newComponent = new TranslationTextComponent(component.getKey(), (Object[]) args);
+        event.setComponent(newComponent);
+
+        if (Config.broadcastMinecraftChat()) {
+
+
+            /*if (DiscordHandler.users.containsKey(event.getPlayer())) {
+                String formtext = event.getComponent().getFormattedText().replace(event.getUsername(), DiscordHandler.users.get(event.getPlayer()));
+                ITextComponent comp = new StringTextComponent(formtext).setStyle(event.getComponent().getStyle());
+                event.setComponent(comp);
+            }*/
+
 
             LinkedList<String> emotes = emoteIDs.parallelStream()
                     .map(handler.getBot()::getEmoteById)

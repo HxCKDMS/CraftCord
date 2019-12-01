@@ -18,10 +18,25 @@ package com.karelmikie3.craftcord.event.chat;
 
 import com.karelmikie3.craftcord.CraftCord;
 import com.karelmikie3.craftcord.util.CommonEmoteHelper;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ChatLine;
+import net.minecraft.client.gui.IngameGui;
+import net.minecraft.client.gui.NewChatGui;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ClientChatEvent;
+import net.minecraftforge.client.event.ClientChatReceivedEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.codehaus.plexus.util.StringUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -29,24 +44,95 @@ import java.util.stream.Collectors;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientChatEvents {
+    private int chatPosX, chatPosY;
 
-    /*@SubscribeEvent
-    public static void renderChat(RenderGameOverlayEvent.Chat event) {
+    @SubscribeEvent
+    public void getChatPos(RenderGameOverlayEvent.Chat event) {
+        chatPosX = event.getPosX();
+        chatPosY = event.getPosY();
+    }
 
-    }*/
+    @SubscribeEvent
+    public void renderEmotes(RenderGameOverlayEvent.Post event) {
+
+        Minecraft mc = Minecraft.getInstance();
+        IngameGui ingameGui = mc.ingameGUI;
+        NewChatGui newChatGui = ingameGui.getChatGUI();
+
+        int ticks = ingameGui.getTicks();
+
+        for (int i = 0; i + newChatGui.scrollPos < newChatGui.drawnChatLines.size() && i < newChatGui.getLineCount(); i++) {
+            float y = chatPosY - mc.fontRenderer.FONT_HEIGHT * i - 1;
+
+            ChatLine line = newChatGui.drawnChatLines.get(i + newChatGui.scrollPos);
+            ITextComponent component = line.getChatComponent();
+            LinkedList<ITextComponent> siblings = new LinkedList<>(component.getSiblings());
+            int priorLength = 0;
+
+            do {
+                if (component.getUnformattedComponentText().equals("  ")) {
+                    String hover = component.getStyle().getHoverEvent().getValue().getUnformattedComponentText();
+
+                    if (StringUtils.isNumeric(hover)) {
+                        long emoteID = Long.parseLong(hover);
+                        if (CraftCord.getInstance().getClientDiscordHandler().emoteProvider.exists(emoteID)) {
+                            int ticksPassed = ticks - line.getUpdatedCounter();
+
+                            int x = chatPosX + priorLength + 3;
+                            if (ticksPassed < 200 || newChatGui.getChatOpen())
+                                renderEmote(x, y, newChatGui.getChatOpen() ? 0 : ticksPassed, new ResourceLocation("craftcordemotes", "textures/emotedata/" + emoteID));
+                        } else {
+                            CraftCord.getInstance().getClientDiscordHandler().emoteProvider.requestFromServer(emoteID);
+                        }
+                    }
+                }
+
+                priorLength += mc.fontRenderer.getStringWidth(TextFormatting.getTextWithoutFormattingCodes(component.getUnformattedComponentText()));
+            } while (!siblings.isEmpty() && (component = siblings.removeFirst()) != null);
+        }
+    }
+
+    private static void renderEmote(float x, float y, int ticksPassed, ResourceLocation emote) {
+        Minecraft mc = Minecraft.getInstance();
+        double chatOpacity = mc.gameSettings.chatOpacity * 0.9D + 0.1D;
+        double fadeOut = MathHelper.clamp((1 - ticksPassed / 200f) * 10D, 0D, 1D);
+        double alpha = fadeOut * fadeOut * chatOpacity;
+
+
+        GlStateManager.pushMatrix();
+        {
+            GlStateManager.enableBlend();
+            GlStateManager.color4f(1, 1, 1, (float) alpha);
+            GlStateManager.translatef(x, y, 0);
+            float scalar = ((float) mc.fontRenderer.FONT_HEIGHT) / 128F;
+            GlStateManager.scalef(scalar, scalar, 1F);
+
+            Tessellator tessellator = Tessellator.getInstance();
+            BufferBuilder builder = tessellator.getBuffer();
+
+            builder.begin(7, DefaultVertexFormats.POSITION_TEX);
+            mc.getTextureManager().bindTexture(emote);
+            builder.pos(0, 128, 0).tex(0, 1).endVertex();
+            builder.pos(128, 128, 0).tex(1, 1).endVertex();
+            builder.pos(128, 0, 0).tex(1, 0).endVertex();
+            builder.pos(0, 0, 0).tex(0, 0).endVertex();
+
+
+            tessellator.draw();
+            GlStateManager.disableAlphaTest();
+            GlStateManager.disableBlend();
+        }
+        GlStateManager.popMatrix();
+    }
+
+    @SubscribeEvent
+    public void clientChatReceived(ClientChatReceivedEvent event) {
+    }
 
     @SubscribeEvent
     public void clientChatEvent(ClientChatEvent event) {
         String message = event.getMessage();
-/*
-    @SubscribeEvent
-    public void clientHoverEvent(HoverEvent event) {
-        if (event.getAction() == HoverEvent.Action.SHOW_TEXT) {
-            if (event.getValue().getFormattedText().contains(":")) {
-                event.getValue().appendSibling(NewChatGuiPatch.removeEmotes(event.getValue()));
-            }
-        }
-    }*/
+
         List<String> emotes = CommonEmoteHelper.getOrderedEmotes(message, CraftCord.getInstance().getClientDiscordHandler().emoteProvider::exists);
         LinkedList<String> emoteIds = emotes.parallelStream()
                 .mapToLong(CraftCord.getInstance().getClientDiscordHandler().emoteProvider::getEmoteID)

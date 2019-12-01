@@ -41,7 +41,10 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.play.server.SChatPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.JSONUtils;
-import net.minecraft.util.text.*;
+import net.minecraft.util.text.ChatType;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -56,6 +59,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.codehaus.plexus.util.StringUtils;
 
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
@@ -374,12 +378,11 @@ public class DiscordHandler {
                     (!Config.sameChannel() || event.getChannel().getIdLong() == channelID)) {
 
                 String message = event.getMessage().getContentDisplay();
-//                System.out.println(event.getAuthor().getAvatarUrl() + " : " + event.getAuthor().getAvatarId());
+//            System.out.println(event.getAuthor().getAvatarUrl() + " : " + event.getAuthor().getAvatarId());
 
-                /*if (event.getMessage()) {
+            /*if (event.getMessage()) {
 
-                }*/
-
+            }*/
                 if (message.startsWith(Config.getCommandCharacter())) {
                     String command = message.substring(Config.getCommandCharacter().length());
 
@@ -391,47 +394,50 @@ public class DiscordHandler {
                         users.put(SERVER.getPlayerList().getPlayerByUsername(args[0]), event.getMember().getNickname());
                     }
                 }
+                List<String> emotes = new LinkedList<>();
 
                 for (Emote emote : event.getMessage().getEmotes()) {
                     CommonEmoteHelper.addToLocalEmoteCache(emote);
+                    emotes.add(emote.getId());
                     message = message.replace(":" + emote.getName() + ":", ":" + emote.getId() + ":");
                 }
 
-                while (message.contains("||") || message.contains("__") || message.contains("~~") || message.contains("*") || message.contains("_")) {
-                    String tempmessage = message.replaceFirst("__", "\u00a7n");
-                    if (tempmessage.contains("__")) {
-                        message = tempmessage.replaceFirst("__", "\u00a7r");
-                    }
-
-                    tempmessage = message.replaceFirst("\\|\\|", "\u00a7k");
-                    if (tempmessage.contains("||")) {
-                        message = tempmessage.replaceFirst("\\|\\|", "\u00a7r");
-                    }
-
-                    tempmessage = message.replaceFirst("\\*\\*", "\u00a7l");
-                    if (tempmessage.contains("**")) {
-                        message = tempmessage.replaceFirst("\\*\\*", "\u00a7r");
-                    }
-
-                    tempmessage = message.replaceFirst("~~", "\u00a7m");
-                    if (tempmessage.contains("~~")) {
-                        message = tempmessage.replaceFirst("~~", "\u00a7r");
-                    }
-
-                    if (message.contains("*")) {
-                        tempmessage = message.replaceFirst("\\*", "\u00a7o");
-                        if (tempmessage.contains("*")) {
-                            message = tempmessage.replaceFirst("\\*", "\u00a7r");
+                    /*while (message.contains("||") || message.contains("__") || message.contains("~~") || message.contains("*") || message.contains("_")) {
+                        System.out.println("test5");
+                        String tempmessage = message.replaceFirst("__", "\u00a7n");
+                        if (tempmessage.contains("__")) {
+                            message = tempmessage.replaceFirst("__", "\u00a7r");
                         }
-                    }
 
-                    if (message.contains("_")) {
-                        tempmessage = message.replaceFirst("_", "\u00a7o");
-                        if (tempmessage.contains("_")) {
-                            message = tempmessage.replaceFirst("_", "\u00a7r");
+                        tempmessage = message.replaceFirst("\\|\\|", "\u00a7k");
+                        if (tempmessage.contains("||")) {
+                            message = tempmessage.replaceFirst("\\|\\|", "\u00a7r");
                         }
-                    }
-                }
+
+                        tempmessage = message.replaceFirst("\\*\\*", "\u00a7l");
+                        if (tempmessage.contains("**")) {
+                            message = tempmessage.replaceFirst("\\*\\*", "\u00a7r");
+                        }
+
+                        tempmessage = message.replaceFirst("~~", "\u00a7m");
+                        if (tempmessage.contains("~~")) {
+                            message = tempmessage.replaceFirst("~~", "\u00a7r");
+                        }
+
+                        if (message.contains("*")) {
+                            tempmessage = message.replaceFirst("\\*", "\u00a7o");
+                            if (tempmessage.contains("*")) {
+                                message = tempmessage.replaceFirst("\\*", "\u00a7r");
+                            }
+                        }
+
+                        if (message.contains("_")) {
+                            tempmessage = message.replaceFirst("_", "\u00a7o");
+                            if (tempmessage.contains("_")) {
+                                message = tempmessage.replaceFirst("_", "\u00a7r");
+                            }
+                        }
+                    }*/
                 String attachmentUrl = "";
                 if (message.replaceAll(" ", "").trim().isEmpty()) {
                     if (!event.getMessage().getAttachments().isEmpty()) {
@@ -454,16 +460,53 @@ public class DiscordHandler {
                             .applyTextStyle(WHITE);
                 }
 
-                ITextComponent chatMessage = new TranslationTextComponent("chat.type.discordText", messengerName, message.contains("\n") ? message.replaceAll("```([a-zA-Z0-9]{0,10}[^\\\\])?", "") : message.replaceAll("`", ""));
+                /*ITextComponent chatMessage = new TranslationTextComponent("chat.type.discordText", messengerName, message.contains("\n") ? message.replaceAll("```([a-zA-Z0-9]{0,10}[^\\\\])?", "") : message.replaceAll("`", ""));
                 if ((message.contains("[Image]") || message.contains("[Media]")) && !attachmentUrl.isEmpty()) {
                     Style s = chatMessage.getStyle();
                     s.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("TODO Make this Display Images @KarelMikie3")));
                     chatMessage.setStyle(s);
+                }*/
+
+                ITextComponent component = new StringTextComponent("")
+                        .applyTextStyle(style -> style.setColor(WHITE))
+                        .appendSibling(new StringTextComponent("[")
+                        .applyTextStyle(style -> style.setColor(BLUE)))
+                        .appendSibling(new StringTextComponent("DISCORD")
+                        .applyTextStyle(style -> style.setColor(DARK_BLUE)))
+                        .appendSibling(new StringTextComponent("]")
+                        .applyTextStyle(style -> style.setColor(BLUE)))
+                        .appendText("<")
+                        .appendSibling(messengerName)
+                        .appendText("> ");
+
+
+                String lastPart = message;
+
+
+                LinkedList<String> emoteIDs = new LinkedList<>(CommonEmoteHelper.getOrderedEmotes(message, StringUtils::isNumeric));
+
+                for (String emoteID : emoteIDs) {
+                    String[] parts = lastPart.split(":" + emoteID + ":", 2);
+
+                    if (!parts[0].isEmpty())
+                        component.appendText(parts[0]);
+
+                    ITextComponent emoteComponent = new StringTextComponent("  ");
+                    emoteComponent.applyTextStyle(style -> style.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent(emoteID))));
+
+                    component.appendSibling(emoteComponent);
+
+                    lastPart = parts[1];
                 }
 
+                if (!lastPart.isEmpty())
+                    component.appendText(lastPart);
+
+
                 //If mod language files load on server change to translation.
-                SERVER.sendMessage(new StringTextComponent(BLUE + "[" + DARK_BLUE + "DISCORD" + BLUE + "]" + RESET + "<").appendSibling(messengerName).appendText("> ").appendText(message));
-                SERVER.getPlayerList().sendPacketToAllPlayers(new SChatPacket(chatMessage, ChatType.CHAT));
+                //https://github.com/MinecraftForge/MinecraftForge/issues/6223
+                SERVER.sendMessage(component);
+                SERVER.getPlayerList().sendPacketToAllPlayers(new SChatPacket(component, ChatType.CHAT));
             }
         }
 
@@ -474,14 +517,14 @@ public class DiscordHandler {
 
         @Override
         public void onMessageReactionAdd(MessageReactionAddEvent event) {
-            if (!Config.sameChannel() || event.getChannel().getIdLong() == channelID) {
+            /*if (!Config.sameChannel() || event.getChannel().getIdLong() == channelID) {
                 System.out.println(event.getReaction().toString());
 
                 if (event.getReactionEmote() != null && event.getReactionEmote().getEmote() != null) {
                     SERVER.sendMessage(new StringTextComponent(":" + event.getReactionEmote().getId() + ":").appendSibling(new StringTextComponent("")).appendText(""));
                     SERVER.getPlayerList().sendPacketToAllPlayers(new SChatPacket(new StringTextComponent(":" + event.getReactionEmote().getEmote().getId() + ":").appendSibling(new StringTextComponent("")).appendText(""), ChatType.CHAT));
                 }
-            }
+            }*/
         }
 
         @Override
