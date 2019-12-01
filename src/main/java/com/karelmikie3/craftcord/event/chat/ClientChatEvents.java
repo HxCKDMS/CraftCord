@@ -78,7 +78,7 @@ public class ClientChatEvents {
                         if (CraftCord.getInstance().getClientDiscordHandler().emoteProvider.exists(emoteID)) {
                             int ticksPassed = ticks - line.getUpdatedCounter();
 
-                            int x = chatPosX + priorLength + 3;
+                            int x = chatPosX + priorLength + 2;
                             if (ticksPassed < 200 || newChatGui.getChatOpen())
                                 renderEmote(x, y, newChatGui.getChatOpen() ? 0 : ticksPassed, new ResourceLocation("craftcordemotes", "textures/emotedata/" + emoteID));
                         } else {
