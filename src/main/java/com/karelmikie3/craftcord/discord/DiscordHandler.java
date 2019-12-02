@@ -492,7 +492,10 @@ public class DiscordHandler {
                         component.appendText(parts[0]);
 
                     ITextComponent emoteComponent = new StringTextComponent("  ");
-                    emoteComponent.applyTextStyle(style -> style.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent(emoteID))));
+                    Emote emote = getBot().getEmoteById(emoteID);
+                    ITextComponent hoverComponent = new StringTextComponent(emote.getName());
+                    hoverComponent.applyTextStyle(style -> style.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent(emoteID))));
+                    emoteComponent.applyTextStyle(style -> style.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverComponent)));
 
                     component.appendSibling(emoteComponent);
 

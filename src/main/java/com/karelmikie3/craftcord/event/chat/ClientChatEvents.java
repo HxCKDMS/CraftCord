@@ -30,6 +30,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ClientChatEvent;
@@ -71,18 +72,26 @@ public class ClientChatEvents {
 
             do {
                 if (component.getUnformattedComponentText().equals("  ")) {
-                    String hover = component.getStyle().getHoverEvent().getValue().getUnformattedComponentText();
+                    HoverEvent hoverEvent = component.getStyle().getHoverEvent();
 
-                    if (StringUtils.isNumeric(hover)) {
-                        long emoteID = Long.parseLong(hover);
-                        if (CraftCord.getInstance().getClientDiscordHandler().emoteProvider.exists(emoteID)) {
-                            int ticksPassed = ticks - line.getUpdatedCounter();
+                    if (hoverEvent != null && hoverEvent.getAction() == HoverEvent.Action.SHOW_TEXT) {
+                        ITextComponent clickComponent = hoverEvent.getValue();
+                        hoverEvent = clickComponent.getStyle().getHoverEvent();
+                        if (hoverEvent != null && hoverEvent.getAction() == HoverEvent.Action.SHOW_TEXT) {
+                            clickComponent = hoverEvent.getValue();
+                            String hoverText = clickComponent.getUnformattedComponentText();
+                            if (StringUtils.isNumeric(hoverText)) {
+                                long emoteID = Long.parseLong(hoverText);
+                                if (CraftCord.getInstance().getClientDiscordHandler().emoteProvider.exists(emoteID)) {
+                                    int ticksPassed = ticks - line.getUpdatedCounter();
 
-                            int x = chatPosX + priorLength + 2;
-                            if (ticksPassed < 200 || newChatGui.getChatOpen())
-                                renderEmote(x, y, newChatGui.getChatOpen() ? 0 : ticksPassed, new ResourceLocation("craftcordemotes", "textures/emotedata/" + emoteID));
-                        } else {
-                            CraftCord.getInstance().getClientDiscordHandler().emoteProvider.requestFromServer(emoteID);
+                                    int x = chatPosX + priorLength + 2;
+                                    if (ticksPassed < 200 || newChatGui.getChatOpen())
+                                        renderEmote(x, y, newChatGui.getChatOpen() ? 0 : ticksPassed, new ResourceLocation("craftcordemotes", "textures/emotedata/" + emoteID));
+                                } else {
+                                    CraftCord.getInstance().getClientDiscordHandler().emoteProvider.requestFromServer(emoteID);
+                                }
+                            }
                         }
                     }
                 }
@@ -91,6 +100,21 @@ public class ClientChatEvents {
             } while (!siblings.isEmpty() && (component = siblings.removeFirst()) != null);
         }
     }
+
+//    @SubscribeEvent
+//    public void renderTooltip(ItemTooltipEvent event) {
+//        System.out.println("test");
+//        if (event.getToolTip().size() > 0) {
+//            String line = event.getToolTip().get(0).getUnformattedComponentText();
+//            if (!line.isEmpty() && StringUtils.isNumeric(line)) {
+//                long emoteID = Long.parseLong(line);
+//                if (CraftCord.getInstance().getClientDiscordHandler().emoteProvider.exists(emoteID)) {
+//                    String name = CraftCord.getInstance().getClientDiscordHandler().emoteProvider.getEmoteName(emoteID);
+//                    event.getToolTip().set(0, new StringTextComponent(name));
+//                }
+//            }
+//        }
+//    }
 
     private static void renderEmote(float x, float y, int ticksPassed, ResourceLocation emote) {
         Minecraft mc = Minecraft.getInstance();
