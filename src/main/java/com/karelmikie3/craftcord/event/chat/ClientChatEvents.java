@@ -157,6 +157,7 @@ public class ClientChatEvents {
     public void clientChatEvent(ClientChatEvent event) {
         String message = event.getMessage();
 
+        //TODO: only do this for usable emotes
         List<String> emotes = CommonEmoteHelper.getOrderedEmotes(message, CraftCord.getInstance().getClientDiscordHandler().emoteProvider::exists);
         LinkedList<String> emoteIds = emotes.parallelStream()
                 .mapToLong(CraftCord.getInstance().getClientDiscordHandler().emoteProvider::getEmoteID)

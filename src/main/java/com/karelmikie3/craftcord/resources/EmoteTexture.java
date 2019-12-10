@@ -69,6 +69,7 @@ public class EmoteTexture extends Texture implements ITickableTextureObject {
     }
 
     @Override
+    //TODO: move frameCounter to ClientTickEvent
     public void tick() {
         this.bindTexture();
 
