@@ -22,6 +22,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.resources.ResourcePack;
 import net.minecraft.resources.ResourcePackType;
+import net.minecraft.resources.SimpleReloadableResourceManager;
 import net.minecraft.resources.data.IMetadataSectionSerializer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.resource.IResourceType;
@@ -66,8 +67,8 @@ public class EmoteResourcePack extends ResourcePack implements ISelectiveResourc
     }
 
     @Override
-    public Collection<ResourceLocation> getAllResourceLocations(ResourcePackType type, String pathIn, int maxDepth, Predicate<String> filter) {
-        return Collections.emptySet();
+    public Collection<ResourceLocation> getAllResourceLocations(ResourcePackType type, String namespaceIn, String pathIn, int maxDepthIn, Predicate<String> filterIn) {
+        return  Collections.emptySet();
     }
 
     @Override
@@ -92,6 +93,7 @@ public class EmoteResourcePack extends ResourcePack implements ISelectiveResourc
 
     @Override
     public void onResourceManagerReload(IResourceManager resourceManager, Predicate<IResourceType> resourcePredicate) {
-        mc.getResourceManager().addResourcePack(this);
+        // ugly fix
+        ((SimpleReloadableResourceManager) mc.getResourceManager()).addResourcePack(this);
     }
 }

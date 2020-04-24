@@ -21,14 +21,14 @@ var InsnList = Java.type("org.objectweb.asm.tree.InsnList");
 var MethodInsnNode = Java.type("org.objectweb.asm.tree.MethodInsnNode");
 var VarInsnNode = Java.type("org.objectweb.asm.tree.VarInsnNode");
 
-var UPDATE_SUGGESTION = ASMAPI.mapMethod("func_195129_h");
+var UPDATE_SUGGESTION = ASMAPI.mapMethod("func_228111_a_");
 
 function initializeCoreMod() {
     return {
         "craftcord NewChatGui transformer": {
             "target": {
                 "type": "CLASS",
-                "name": "net.minecraft.client.gui.screen.ChatScreen"
+                "name": "net.minecraft.client.gui.CommandSuggestionHelper"
             },
             "transformer": function(classnode) {
                 classnode.methods.forEach(function(method)  {
@@ -62,7 +62,7 @@ function patchUpdateSuggestion(instructions) {
         Opcodes.INVOKESTATIC,
         "com/karelmikie3/craftcord/patch/ChatScreenPatch",
         "addSuggestions",
-        "(Lnet/minecraft/client/gui/screen/ChatScreen;Ljava/lang/String;)V",
+        "(Lnet/minecraft/client/gui/CommandSuggestionHelper;Ljava/lang/String;)V",
         false
     ));
 

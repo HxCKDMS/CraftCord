@@ -19,7 +19,7 @@ package com.karelmikie3.craftcord.patch;
 import com.karelmikie3.craftcord.CraftCord;
 import com.karelmikie3.craftcord.config.Config;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.client.gui.screen.ChatScreen;
+import net.minecraft.client.gui.CommandSuggestionHelper;
 import net.minecraft.command.ISuggestionProvider;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -28,9 +28,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public final class ChatScreenPatch {
 
-    public static void addSuggestions(ChatScreen instance, String s) {
+    public static void addSuggestions(CommandSuggestionHelper instance, String s) {
         if (!Config.emoteSuggestionsEnabled())
             return;
+
+        System.out.println("test");
 
         boolean buildingEmote = false;
         boolean longerThanZero = false;
@@ -51,11 +53,16 @@ public final class ChatScreenPatch {
         }
 
         if (buildingEmote) {
-            instance.pendingSuggestions = ISuggestionProvider.suggest(CraftCord.getInstance().getClientDiscordHandler().emoteProvider.usableEmotes().stream().map(emote -> ":" + emote + ":"), new SuggestionsBuilder(s, currentColonIndex));
-
-            instance.pendingSuggestions.thenRun(() -> {
-                if (instance.pendingSuggestions.isDone()) {
-                    instance.showSuggestions();
+            System.out.println("test2");
+            instance.field_228107_p_ = ISuggestionProvider.suggest(CraftCord.getInstance().getClientDiscordHandler().emoteProvider.usableEmotes().stream().map(emote -> ":" + emote + ":"), new SuggestionsBuilder(s, currentColonIndex));
+            System.out.println(instance.field_228106_o_);
+            System.out.println("test5");
+            instance.field_228107_p_.thenRun(() -> {
+                if (instance.field_228107_p_.isDone()) {
+                    System.out.println("test4");
+                    instance.func_228125_b_();
+                    instance.func_228124_a_(true);
+                    System.out.println("test3");
                 }
             });
         }

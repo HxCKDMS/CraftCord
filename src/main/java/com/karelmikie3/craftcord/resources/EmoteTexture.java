@@ -16,11 +16,7 @@
 
 package com.karelmikie3.craftcord.resources;
 
-import com.mojang.blaze3d.platform.TextureUtil;
-import net.minecraft.client.renderer.texture.ITickableTextureObject;
-import net.minecraft.client.renderer.texture.NativeImage;
-import net.minecraft.client.renderer.texture.SimpleTexture;
-import net.minecraft.client.renderer.texture.Texture;
+import net.minecraft.client.renderer.texture.*;
 import net.minecraft.client.resources.data.TextureMetadataSection;
 import net.minecraft.resources.IResource;
 import net.minecraft.resources.IResourceManager;
@@ -29,7 +25,7 @@ import net.minecraft.util.ResourceLocation;
 import javax.annotation.Nullable;
 import java.io.IOException;
 
-public class EmoteTexture extends Texture implements ITickableTextureObject {
+public class EmoteTexture extends Texture implements ITickable {
     private final ResourceLocation textureLocation;
     private int frameCounter = 0;
     private int interFrameCounter = 0;
@@ -48,7 +44,7 @@ public class EmoteTexture extends Texture implements ITickableTextureObject {
     @Override
     public void loadTexture(IResourceManager manager) throws IOException {
         try (EmoteTextureData simpletexture$texturedata = this.func_215246_b(manager)) {
-            simpletexture$texturedata.func_217801_c();
+            simpletexture$texturedata.checkException();
 
             GifSerializer.GifMetadataSection gifMetadataSection = simpletexture$texturedata.getGifMetadataSection();
 
@@ -59,7 +55,7 @@ public class EmoteTexture extends Texture implements ITickableTextureObject {
                 this.delays = gifMetadataSection.getDelays();
             }
 
-            this.image = simpletexture$texturedata.func_217800_b();
+            this.image = simpletexture$texturedata.getNativeImage();
             TextureUtil.prepareImage(this.getGlTextureId(), 0, image.getWidth(), this.isAnimated ? this.height : image.getHeight());
         }
     }
@@ -74,7 +70,7 @@ public class EmoteTexture extends Texture implements ITickableTextureObject {
         this.bindTexture();
 
         if (isAnimated) {
-            image.uploadTextureSub(0, 0, 0, 0, frameCounter * height, image.getWidth(), height, true);
+            image.uploadTextureSub(0, 0, 0, 0, frameCounter * height, image.getWidth(), height, false, false);
 
             if ((interFrameCounter += SUB_FRAME_INCREMENT) >= delays[frameCounter]) {
                 interFrameCounter = 0;
@@ -83,7 +79,7 @@ public class EmoteTexture extends Texture implements ITickableTextureObject {
                 }
             }
         } else {
-            image.uploadTextureSub(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), false, false, false);
+            image.uploadTextureSub(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), false, false, false, false);
         }
     }
 

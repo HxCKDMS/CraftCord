@@ -55,7 +55,7 @@ public class MemoryEmoteProvider extends AbstractEmoteProvider {
 
         executor.runImmediately(() -> {
             ResourceLocation emoteResource = new ResourceLocation("craftcordemotes", "textures/emotedata/" + emoteID);
-            mc.getTextureManager().loadTickableTexture(emoteResource, new EmoteTexture(emoteResource));
+            mc.getTextureManager().loadTexture(emoteResource, new EmoteTexture(emoteResource));
         });
     }
 
