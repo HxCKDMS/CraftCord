@@ -112,7 +112,7 @@ public final class StatusPresenceHelper {
             Object2IntMap<EntityClassification> map = world.countEntities();
             for (EntityClassification value : EntityClassification.values()) {
                 builder.append(value.name()).append(": ").append(map.getInt(value)).append("/");
-                builder.append(value.getMaxNumberOfCreature() * world.getChunkProvider().ticketManager.func_219358_b() / 289);
+                builder.append(value.getMaxNumberOfCreature() * world.getChunkProvider().ticketManager.getSpawningChunksCount() / 289);
                 builder.append('\n');
             }
         }
